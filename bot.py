@@ -5,7 +5,7 @@ from discord.ext import commands
 
 bot = commands.Bot(command_prefix='!')
 
-sd.default.device = 1
+sd.default.device = 1 # change to desired device
 sd.default.channels = 2
 sd.default.dtype = 'int16'
 sd.default.latency = 'low'
@@ -30,10 +30,10 @@ async def on_ready():
     print(bot.user.name)
     print(sd.query_devices())
     
-    channel = bot.get_channel('')
+    channel = bot.get_channel('') # fill in voice channel id
     voice = await bot.join_voice_channel(channel)
 
     player = voice.create_stream_player(PCMStream())
     player.start()
 
-bot.run('');
+bot.run('') # fill in bot user token
