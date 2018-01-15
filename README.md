@@ -7,5 +7,5 @@ Barebones program to send computer audio (microphone, stereo mix, virtual audio 
     $ pip3 install numpy
 
 ## Use
-Create an application through https://discordapp.com/developers/applications/me and make a bot user
+Create an application through https://discordapp.com/developers/applications/me and make a bot user  
 Provide the voice channel id, bot user token, and sound device to the code
