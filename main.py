@@ -33,13 +33,14 @@ async def ready(bot, bot_ui):
         #print(channel.id)
 
 bot = discord.Client()
-loop = asyncio.get_event_loop()
 bot_ui = ui.UI(lambda: asyncio.ensure_future(bot.logout()))
+loop = asyncio.get_event_loop()
 
 try:
     asyncio.ensure_future(run_tk(bot_ui.root, interval=0.05))
     asyncio.ensure_future(ready(bot, bot_ui))
-    loop.run_until_complete(bot.start('NDAxNTc2OTU3ODMxMTUxNjE3.DTsWoQ.VHQhiFSB2uAZFaZ3r_wRzmvOPzw'))
+    
+    loop.run_until_complete(bot.start(open('token.txt', 'r').read()))
 except KeyboardInterrupt:
     loop.run_until_complete(bot.logout())
 finally:
