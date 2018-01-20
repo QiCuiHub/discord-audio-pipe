@@ -58,7 +58,7 @@ class UI():
         if (name != 'None'):
             server = discord.utils.find(lambda s: s.name == name, self.bot.servers)
             channel_names = [c.name for c in server.channels if c.type is discord.enums.ChannelType.voice]
-            self.set_channels(channel_names)
+            self.set_channels(['None'] + channel_names)
         else:
             self.set_channels(['None'])
 
@@ -82,5 +82,7 @@ class UI():
             
     def set_channels(self, channels):
         menu = self.channel['menu']
+        menu.delete(0, 'end')
+        
         for string in channels:
             menu.add_command(label=string, command=lambda value=string: self.cv.set(value))    
