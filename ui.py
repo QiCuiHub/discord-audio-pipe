@@ -7,8 +7,12 @@ class UI():
     def __init__(self, bot):
         self.root = tk.Tk()
         self.root.title("Bot")
+        
         self.bot = bot
-
+        self.voice = None
+        self.player = None
+        self.stream = sound.PCMStream()
+        
         self.cred = tk.Label(self.root, text='Connecting...', fg='black')
         self.cred.grid(row=0, column=0, columnspan=2, sticky='W')
         
@@ -58,20 +62,33 @@ class UI():
         if (name != 'None'):
             server = discord.utils.find(lambda s: s.name == name, self.bot.servers)
             channel_names = [c.name for c in server.channels if c.type is discord.enums.ChannelType.voice]
-            self.set_channels(['None'] + channel_names)
+            self.set_channels(['None'] + channel_names)    
         else:
             self.set_channels(['None'])
 
+        if (self.voice is not None):
+            await self.voice.disconnect()
+            self.voice = None
+        
     async def change_channel(self):
         s_name = self.sv.get()
         c_name = self.cv.get()
+
+        if (self.player is not None):
+            self.player.stop()
+
         if (c_name != 'None'):
             server = discord.utils.find(lambda s: s.name == s_name, self.bot.servers)
             channel = discord.utils.find(lambda c: c.name == c_name, server.channels)
-            voice = await self.bot.join_voice_channel(channel)
-            player = voice.create_stream_player(sound.PCMStream())
-            player.start()
             
+            if (self.voice is None):
+                self.voice = await self.bot.join_voice_channel(channel)
+            else:
+                await self.voice.move_to(channel)
+
+            self.player = self.voice.create_stream_player(self.stream)
+            self.player.start()
+
     def set_cred(self, username):
         self.cred.config(text='Logged in as: ' + username)
 
