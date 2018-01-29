@@ -46,7 +46,8 @@ class UI():
         self.root.destroy()
     
     def change_device(self, options, dv):
-        print (options.get(dv.get()))
+        if (dv.get() != 'None'):
+            self.stream.change_device(options.get(dv.get()))
         
     async def run_tk(self, interval=0.05):
         try:
@@ -86,6 +87,7 @@ class UI():
             else:
                 await self.voice.move_to(channel)
 
+            self.voice.encoder_options(sample_rate=48000, channels=self.stream.ch)
             self.player = self.voice.create_stream_player(self.stream)
             self.player.start()
 
