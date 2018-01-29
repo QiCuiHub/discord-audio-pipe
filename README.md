@@ -5,7 +5,7 @@ Barebones program to send computer audio (microphone, stereo mix, virtual audio 
 Python 3.5+
 ```
     $ pip3 install discord.py[voice]
-    $ pip3 install sounddevice
+    $ https://www.lfd.uci.edu/~gohlke/pythonlibs/#sounddevice
     $ pip3 install numpy
 ```
 
