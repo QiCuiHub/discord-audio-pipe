@@ -22,7 +22,7 @@ class UI():
 
         device_options = sound.query_devices()
         dv = tk.StringVar(self.root)
-        dv.trace("w", lambda *args: self.change_device(device_options, dv))
+        dv.trace("w", lambda *args: asyncio.ensure_future(self.change_device(device_options, dv)))
         dv.set(device_options.get(0))
         device = tk.OptionMenu(self.root, dv, *device_options)
         device.grid(row=2, column=0)
@@ -45,8 +45,16 @@ class UI():
         asyncio.ensure_future(self.bot.logout())
         self.root.destroy()
     
-    def change_device(self, options, dv):
-        print (options.get(dv.get()))
+    async def change_device(self, options, dv):
+        if (dv.get() != 'None'):
+            self.stream.change_device(options.get(dv.get()))
+            
+            if (self.player is not None):
+                self.player.stop()
+            
+            if (self.voice is not None):
+                self.player = self.voice.create_stream_player(self.stream)
+                self.player.start()
         
     async def run_tk(self, interval=0.05):
         try:
@@ -88,12 +96,17 @@ class UI():
 
             self.player = self.voice.create_stream_player(self.stream)
             self.player.start()
+        else:
+            if (self.voice is not None):
+                await self.voice.disconnect()
+                self.voice = None
 
     def set_cred(self, username):
         self.cred.config(text='Logged in as: ' + username)
 
     def set_servers(self, servers):
         menu = self.server['menu']
+
         for string in servers:
             menu.add_command(label=string, command=lambda value=string: self.sv.set(value))
             
