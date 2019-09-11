@@ -13,4 +13,4 @@ Python 3.5+
 1. Create a discord application [here](https://discordapp.com/developers/applications/me) and make a bot user
 3. Get client id from the application and invite the bot using
    - ``https://discordapp.com/oauth2/authorize?client_id=<CLIENT_ID>&scope=bot``
-4. Provide the voice channel id, bot token, and sound device to the code and run
+4. Create a file ``token.txt`` in the same directory as ``main.py`` and put the bot token inside
