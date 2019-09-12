@@ -1,20 +1,30 @@
 name: CI
 
 on:
-  pull_request:
+  release:
     branches:
     - master
 
 jobs:
   build:
-
     runs-on: windows-latest
     
     steps:
     - uses: actions/checkout@master
       with:
         fetch-depth: 1
+
     - name: Install pyinstaller
       run: pip3 install pyinstaller
+ 
     - name: Compile to exe
-      run: pyinstaller main.py
+      run: pyinstaller --name dap --onefile main.py
+
+    - name: Release
+      run: | 
+           $postParams = @{name="dap.exe"; label="v0.1"}
+           $uploadPath = "./build/dap.exe"
+           $releaseID = $(jq --raw-output '.release.id' $GITHUB_EVENT_PATH)
+           $headers = @{content_type: "application/vnd.microsoft.portable-executable"}
+           $uri = "https://api.github.com/repos/$GITHUB_ACTOR/$GITHUB_REPOSITORY/releases/$releaseID/assets"
+           Invoke-WebRequest -Uri $uri -Method POST -Body $postParams -Header $headers -InFile $uploadPath
