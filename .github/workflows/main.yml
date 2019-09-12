@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  release:
+    types: [published]
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@master
+      with:
+        fetch-depth: 1
+
+    - name: Install python dependencies
+      run: |
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+        c:\hostedtoolcache\windows\python\3.6.8\x64\python.exe -m pip install --upgrade pip
+=======
+        pip3 install --upgrade pip3
+>>>>>>> ad68fa5... update pip before downloading deps
+=======
+        pip3 install --upgrade pip
+>>>>>>> e92f11c... cleanup
+=======
+        c:\hostedtoolcache\windows\python\3.6.8\x64\python.exe -m pip install --upgrade pip
+>>>>>>> ed60111... use hostedtoolcache pip
+        pip3 install discord.py[voice]
+        pip3 install sounddevice
+        pip3 install numpy
+        pip3 install pyinstaller
+ 
+    - name: Download libraries
+      shell: pwsh
+      run: |
+        Invoke-WebRequest https://github.com/Rapptz/discord.py/raw/master/discord/bin/libopus-0.x64.dll -OutFile ./libopus-0.x64.dll
+        Invoke-WebRequest https://github.com/spatialaudio/portaudio-binaries/raw/master/libportaudio64bit.dll -OutFile ./libportaudio64bit.dll
+ 
+    - name: Compile to exe
+      run: pyinstaller --hidden-import numpy 
+                       --hidden-import sounddevice 
+                       --hidden-import discord 
+                       --add-data "./libopus-0.x64.dll;./discord/bin/" 
+                       --add-data "./libportaudio64bit.dll;./_sounddevice_data/portaudio-binaries/" 
+                       --name dap 
+                       --onefile main.pyw
+
+    - name: Release
+      shell: pwsh
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: | 
+        $uploadPath = "./dist/dap.exe"
+        $releaseID = cat ${Env:GITHUB_EVENT_PATH} | jq --raw-output .release.id
+        $uri = "https://uploads.github.com/repos/${Env:GITHUB_REPOSITORY}/releases/${releaseID}/assets?name=dap.exe"
+        $headers = @{"Content-Type"="application/x-msdownload"; "Authorization"="token ${Env:GITHUB_TOKEN}"}
+        Invoke-WebRequest -Uri $uri -Method POST -Header $headers -InFile $uploadPath
