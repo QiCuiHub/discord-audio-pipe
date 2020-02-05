@@ -17,19 +17,7 @@ jobs:
 
     - name: Install python dependencies
       run: |
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         c:\hostedtoolcache\windows\python\3.6.8\x64\python.exe -m pip install --upgrade pip
-=======
-        pip3 install --upgrade pip3
->>>>>>> ad68fa5... update pip before downloading deps
-=======
-        pip3 install --upgrade pip
->>>>>>> e92f11c... cleanup
-=======
-        c:\hostedtoolcache\windows\python\3.6.8\x64\python.exe -m pip install --upgrade pip
->>>>>>> ed60111... use hostedtoolcache pip
         pip3 install discord.py[voice]
         pip3 install sounddevice
         pip3 install numpy
