@@ -27,7 +27,6 @@ class PCMStream:
         self.stream = sd.InputStream(device=num)
         self.stream.start()
 
-
 def query_devices():
     index = 0
     options = {}
