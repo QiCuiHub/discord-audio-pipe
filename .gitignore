@@ -1,2 +1,5 @@
 __pycache__/
 token.txt
+*.exe
+*.log
+main.py

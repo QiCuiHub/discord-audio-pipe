@@ -1,16 +1,16 @@
 import sound
 import discord
 import asyncio
+import logging
 import tkinter as tk
 
 class UI():
     def __init__(self, bot):
         self.root = tk.Tk()
-        self.root.title("Bot")
+        self.root.title('Bot')
         
         self.bot = bot
         self.voice = None
-        self.player = None
         self.stream = sound.PCMStream()
         
         self.cred = tk.Label(self.root, text='Connecting...', fg='black')
@@ -22,13 +22,13 @@ class UI():
 
         device_options = sound.query_devices()
         dv = tk.StringVar(self.root)
-        dv.trace("w", lambda *args: self.change_device(device_options, dv))
+        dv.trace('w', lambda *args: asyncio.ensure_future(self.change_device(device_options, dv)))
         dv.set(device_options.get(0))
         device = tk.OptionMenu(self.root, dv, *device_options)
         device.grid(row=2, column=0)
 
         self.sv = tk.StringVar(self.root)
-        self.sv.trace("w", lambda *args: asyncio.ensure_future(self.change_server()))
+        self.sv.trace('w', lambda *args: asyncio.ensure_future(self.change_server()))
         self.sv.set('None')
         self.server = tk.OptionMenu(self.root, self.sv, 'None')
         self.server.grid(row=2, column=1)
@@ -39,16 +39,30 @@ class UI():
         self.channel = tk.OptionMenu(self.root, self.cv, 'None')
         self.channel.grid(row=2, column=2)
 
-        self.root.protocol("WM_DELETE_WINDOW", self.on_exit)
+        self.mv = tk.StringVar(self.root)
+        self.mv.set('Mute')
+        self.mute = tk.Button(self.root, textvariable=self.mv, command=self.toggle_mute)
+        self.mute.grid(row=2, column=3, padx=5)
+        
+        self.root.protocol('WM_DELETE_WINDOW', self.exit)
 
-    def on_exit(self):
+    def exit(self):
         asyncio.ensure_future(self.bot.logout())
         self.root.destroy()
-    
-    def change_device(self, options, dv):
-        if (dv.get() != 'None'):
-            self.stream.change_device(options.get(dv.get()))
-        
+
+    async def change_device(self, options, dv):
+        try:
+            if (dv.get() != 'None'):
+                if (self.voice is not None):
+                    self.voice.stop()
+                    self.stream.change_device(options.get(dv.get()))
+                    self.voice.play(discord.PCMAudio(self.stream))
+                else:
+                    self.stream.change_device(options.get(dv.get()))
+                    
+        except:
+            logging.exception('Error on change_device')
+
     async def run_tk(self, interval=0.05):
         try:
             while True:
@@ -56,52 +70,77 @@ class UI():
                 await asyncio.sleep(interval)
         except tk.TclError as e:
             return
-        
+
     async def change_server(self):
-        name = self.sv.get()
+        try:
+            name = self.sv.get()
 
-        if (name != 'None'):
-            server = discord.utils.find(lambda s: s.name == name, self.bot.servers)
-            channel_names = [c.name for c in server.channels if c.type is discord.enums.ChannelType.voice]
-            self.set_channels(['None'] + channel_names)    
-        else:
-            self.set_channels(['None'])
+            if (name != 'None'):
+                guild = discord.utils.find(lambda s: s.name == name, self.bot.guilds)
+                channel_names = [c.name for c in guild.channels if isinstance(c, discord.VoiceChannel)]
+                self.set_channels(['None'] + channel_names)    
+            else:
+                self.set_channels(['None'])
 
-        if (self.voice is not None):
-            await self.voice.disconnect()
-            self.voice = None
+            if (self.voice is not None):
+                await self.voice.disconnect()
+                self.voice = None
+                
+        except:
+            logging.exception('Error on change_server')
         
     async def change_channel(self):
-        s_name = self.sv.get()
-        c_name = self.cv.get()
-
-        if (self.player is not None):
-            self.player.stop()
-
-        if (c_name != 'None'):
-            server = discord.utils.find(lambda s: s.name == s_name, self.bot.servers)
-            channel = discord.utils.find(lambda c: c.name == c_name, server.channels)
-            
-            if (self.voice is None):
-                self.voice = await self.bot.join_voice_channel(channel)
-            else:
-                await self.voice.move_to(channel)
+        try:
+            s_name = self.sv.get()
+            c_name = self.cv.get()
 
             self.voice.encoder_options(sample_rate=48000, channels=self.stream.ch)
             self.player = self.voice.create_stream_player(self.stream)
             self.player.start()
 
+            if (c_name != 'None'):
+                guild = discord.utils.find(lambda s: s.name == s_name, self.bot.guilds)
+                channel = discord.utils.find(lambda c: c.name == c_name, guild.channels)
+                
+                if (self.voice is None):
+                    self.voice = await channel.connect()
+                else:
+                    await self.voice.move_to(channel)
+
+                self.voice.play(discord.PCMAudio(self.stream))
+            else:
+                if (self.voice is not None):
+                    await self.voice.disconnect()
+                    self.voice = None
+                    
+        except:
+            logging.exception('Error on change_channel')
+ 
     def set_cred(self, username):
         self.cred.config(text='Logged in as: ' + username)
 
     def set_servers(self, servers):
         menu = self.server['menu']
+
         for string in servers:
             menu.add_command(label=string, command=lambda value=string: self.sv.set(value))
-            
+
     def set_channels(self, channels):
         menu = self.channel['menu']
         menu.delete(0, 'end')
         
         for string in channels:
             menu.add_command(label=string, command=lambda value=string: self.cv.set(value))    
+ 
+    def toggle_mute(self):
+        try:
+            if (self.voice is not None):
+                if (self.voice.is_playing()):
+                    self.voice.pause()
+                    self.mv.set('Resume')
+                else:
+                    self.voice.resume()
+                    self.mv.set('Mute')
+                    
+        except:
+            logging.exception('Error on toggle_mute')

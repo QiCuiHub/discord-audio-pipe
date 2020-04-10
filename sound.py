@@ -8,7 +8,7 @@ sd.default.samplerate = 48000
 class PCMStream:
     def __init__(self):
         self.ch = 2
-        self.sr = 48000
+        self.sr = sd.default.samplerate
         self.stream = None
         
     def read(self, num_bytes):
@@ -23,12 +23,11 @@ class PCMStream:
         if (self.stream is not None):
             self.stream.stop()
             self.stream.close()
-    
+
         self.ch = sd.query_devices(num).get('max_input_channels')
         self.sr = sd.query_devices(num).get('default_samplerate')
         self.stream = sd.InputStream(device=num, channels=self.ch, samplerate=self.sr)
         self.stream.start()
-
 
 def query_devices():
     index = 0
@@ -36,9 +35,9 @@ def query_devices():
     
     for item in sd.query_devices():
         # pip version only supports MME api
-        if (item.get('max_input_channels') > 0 and item.get('hostapi') == 3):
+        if (item.get('max_input_channels') > 0):
             options[item.get('name')] = index
-                
+
         index += 1
 
     return options
