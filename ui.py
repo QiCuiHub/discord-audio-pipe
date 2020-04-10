@@ -94,10 +94,6 @@ class UI():
             s_name = self.sv.get()
             c_name = self.cv.get()
 
-            self.voice.encoder_options(sample_rate=48000, channels=self.stream.ch)
-            self.player = self.voice.create_stream_player(self.stream)
-            self.player.start()
-
             if (c_name != 'None'):
                 guild = discord.utils.find(lambda s: s.name == s_name, self.bot.guilds)
                 channel = discord.utils.find(lambda c: c.name == c_name, guild.channels)
