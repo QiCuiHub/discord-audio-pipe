@@ -116,23 +116,17 @@ class UI():
         except:
             logging.exception('Error on change_channel')
  
-    def escape_string(self, string):
-        '''Convert characters greater than uffff to replacement char'''
-        out = ''
-
-        for char in string:
-            out += char if char <= '\uffff' else '\ufffd'
-            
-        return out
+    def deEmojify(self, inputString):
+        return inputString.encode('ascii', 'ignore').decode('ascii')
  
     def set_cred(self, username):
-        self.cred.config(text='Logged in as: ' + self.escape_string(username))
+        self.cred.config(text='Logged in as: ' + self.deEmojify(username))
 
     def set_servers(self, servers):
         menu = self.server['menu']
         
         for idx, server in enumerate(servers):
-            escaped = str(idx) + '. ' + self.escape_string(server.name)
+            escaped = str(idx) + '. ' + self.deEmojify(server.name)
             menu.add_command(label=escaped, command=lambda value=escaped: self.sv.set(value))
             self.server_map[escaped] = server
         
@@ -144,7 +138,7 @@ class UI():
         self.channel_map.clear()
 
         for idx, channel in enumerate(channels):
-            escaped = str(idx) + '. ' + self.escape_string(channel.name)
+            escaped = str(idx) + '. ' + self.deEmojify(channel.name)
             menu.add_command(label=escaped, command=lambda value=escaped: self.cv.set(value))
             self.channel_map[escaped] = channel
  
