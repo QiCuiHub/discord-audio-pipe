@@ -16,39 +16,81 @@ class UI():
         self.cred = tk.Label(self.root, text='Connecting...', fg='black')
         self.cred.grid(row=0, column=0, columnspan=2, sticky='W')
         
-        tk.Label(self.root, text='Device', fg='black').grid(row=1, column=0)
-        tk.Label(self.root, text='Server', fg='black').grid(row=1, column=1)
-        tk.Label(self.root, text='Channel', fg='black').grid(row=1, column=2)
+        tk.Label(self.root, text='System', fg='black').grid(row=1, column=0)
+        tk.Label(self.root, text='Device', fg='black').grid(row=1, column=1)
+        tk.Label(self.root, text='Server', fg='black').grid(row=1, column=2)
+        tk.Label(self.root, text='Channel', fg='black').grid(row=1, column=3)
 
-        device_options = sound.query_devices()
-        dv = tk.StringVar(self.root)
-        dv.trace('w', lambda *args: asyncio.ensure_future(self.change_device(device_options, dv)))
-        dv.set(device_options.get(0))
-        device = tk.OptionMenu(self.root, dv, *device_options)
-        device.grid(row=2, column=0)
+        self.system_options = self.stream.query_apis()
+        self.av = tk.StringVar(self.root)
+        self.av.trace('w', lambda *args: asyncio.ensure_future(self.change_api(self.system_options, self.av)))
+        self.av.set(self.system_options.get(0))
+        self.api = tk.OptionMenu(self.root, self.av, *self.system_options)
+        self.api.grid(row=2, column=0)
+
+        self.device_options = None
+        self.dv = tk.StringVar(self.root)
+        self.dv.trace('w', lambda *args: asyncio.ensure_future(self.change_device(self.device_options, self.dv)))
+        self.dv.set('None')
+        self.device = tk.OptionMenu(self.root, self.dv, 'None')
+        self.device.grid(row=2, column=1)
 
         self.sv = tk.StringVar(self.root)
         self.sv.trace('w', lambda *args: asyncio.ensure_future(self.change_server()))
         self.sv.set('None')
         self.server = tk.OptionMenu(self.root, self.sv, 'None')
-        self.server.grid(row=2, column=1)
+        self.server.grid(row=2, column=2)
 
         self.cv = tk.StringVar(self.root)
         self.cv.trace("w", lambda *args: asyncio.ensure_future(self.change_channel()))
         self.cv.set('None')
         self.channel = tk.OptionMenu(self.root, self.cv, 'None')
-        self.channel.grid(row=2, column=2)
+        self.channel.grid(row=2, column=3)
 
         self.mv = tk.StringVar(self.root)
         self.mv.set('Mute')
         self.mute = tk.Button(self.root, textvariable=self.mv, command=self.toggle_mute)
-        self.mute.grid(row=2, column=3, padx=5)
+        self.mute.grid(row=2, column=4, padx=5)
         
         self.root.protocol('WM_DELETE_WINDOW', self.exit)
 
     def exit(self):
         asyncio.ensure_future(self.bot.logout())
         self.root.destroy()
+
+    async def run_tk(self, interval=0.05):
+        try:
+            while True:
+                self.root.update()
+                await asyncio.sleep(interval)
+        except tk.TclError as e:
+            return
+
+    async def change_api(self, options, av):
+        try:
+            menu = self.device['menu']
+        
+            if (av.get() != 'None'):
+                if (self.voice is not None):
+                    self.voice.stop()
+                    self.stream.change_api(options.get(av.get()))
+                    self.voice.play(discord.PCMAudio(self.stream))
+                else:
+                    self.stream.change_api(options.get(av.get()))
+
+                menu.delete(0, 'end')
+                self.device_options = self.stream.query_devices()
+                for device in self.device_options:
+                    print(device)
+                    menu.add_command(label=device, command=lambda value=device: self.dv.set(value))
+                    
+            else:
+                menu.delete(0, 'end')
+                menu.add_command(label='None', command=lambda value='None': self.dv.set(value))
+                self.device_options = None
+
+        except:
+            logging.exception('Error on change_api')
 
     async def change_device(self, options, dv):
         try:
@@ -62,14 +104,6 @@ class UI():
                     
         except:
             logging.exception('Error on change_device')
-
-    async def run_tk(self, interval=0.05):
-        try:
-            while True:
-                self.root.update()
-                await asyncio.sleep(interval)
-        except tk.TclError as e:
-            return
 
     async def change_server(self):
         try:
@@ -110,7 +144,7 @@ class UI():
                     self.voice = None
                     
         except:
-            logging.exception('Error on change_channel')
+            logging.exception('Error on change_channel') 
  
     def set_cred(self, username):
         self.cred.config(text='Logged in as: ' + username)
@@ -118,15 +152,15 @@ class UI():
     def set_servers(self, servers):
         menu = self.server['menu']
 
-        for string in servers:
-            menu.add_command(label=string, command=lambda value=string: self.sv.set(value))
+        for server in servers:
+            menu.add_command(label=server, command=lambda value=server: self.sv.set(value))
 
     def set_channels(self, channels):
         menu = self.channel['menu']
         menu.delete(0, 'end')
         
-        for string in channels:
-            menu.add_command(label=string, command=lambda value=string: self.cv.set(value))    
+        for channel in channels:
+            menu.add_command(label=channel, command=lambda value=channel: self.cv.set(value))    
  
     def toggle_mute(self):
         try:
