@@ -117,7 +117,7 @@ class UI():
             logging.exception('Error on change_channel')
  
     def deEmojify(self, inputString):
-        return inputString.encode('ascii', 'ignore').decode('ascii')
+        return ''.join(char for char in inputString if char <= '\uffff')
  
     def set_cred(self, username):
         self.cred.config(text='Logged in as: ' + self.deEmojify(username))
