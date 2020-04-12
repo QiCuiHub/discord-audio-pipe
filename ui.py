@@ -21,10 +21,10 @@ class UI():
         tk.Label(self.root, text='Channel', fg='black').grid(row=1, column=2)
 
         device_options = sound.query_devices()
-        dv = tk.StringVar(self.root)
-        dv.trace('w', lambda *args: asyncio.ensure_future(self.change_device(device_options, dv)))
-        dv.set(device_options.get(0))
-        device = tk.OptionMenu(self.root, dv, *device_options)
+        self.dv = tk.StringVar(self.root)
+        self.dv.trace('w', lambda *args: self.change_device(device_options, self.dv))
+        self.dv.set(device_options.get(0))
+        device = tk.OptionMenu(self.root, self.dv, *device_options)
         device.grid(row=2, column=0)
 
         self.sv = tk.StringVar(self.root)
@@ -32,12 +32,14 @@ class UI():
         self.sv.set('None')
         self.server = tk.OptionMenu(self.root, self.sv, 'None')
         self.server.grid(row=2, column=1)
+        self.server_map = {}
 
         self.cv = tk.StringVar(self.root)
         self.cv.trace("w", lambda *args: asyncio.ensure_future(self.change_channel()))
         self.cv.set('None')
         self.channel = tk.OptionMenu(self.root, self.cv, 'None')
         self.channel.grid(row=2, column=2)
+        self.channel_map = {}
 
         self.mv = tk.StringVar(self.root)
         self.mv.set('Mute')
@@ -50,7 +52,7 @@ class UI():
         asyncio.ensure_future(self.bot.logout())
         self.root.destroy()
 
-    async def change_device(self, options, dv):
+    def change_device(self, options, dv):
         try:
             if (dv.get() != 'None'):
                 if (self.voice is not None):
@@ -73,14 +75,14 @@ class UI():
 
     async def change_server(self):
         try:
-            name = self.sv.get()
+            s_name = self.sv.get()
 
-            if (name != 'None'):
-                guild = discord.utils.find(lambda s: s.name == name, self.bot.guilds)
-                channel_names = [c.name for c in guild.channels if isinstance(c, discord.VoiceChannel)]
-                self.set_channels(['None'] + channel_names)    
+            if (s_name != 'None'):
+                guild = discord.utils.find(lambda s: s.id == self.server_map[s_name].id, self.bot.guilds)
+                channel_names = [c for c in guild.channels if isinstance(c, discord.VoiceChannel)]
+                self.set_channels(channel_names)    
             else:
-                self.set_channels(['None'])
+                self.set_channels([])
 
             if (self.voice is not None):
                 await self.voice.disconnect()
@@ -93,17 +95,19 @@ class UI():
         try:
             s_name = self.sv.get()
             c_name = self.cv.get()
-
+        
             if (c_name != 'None'):
-                guild = discord.utils.find(lambda s: s.name == s_name, self.bot.guilds)
-                channel = discord.utils.find(lambda c: c.name == c_name, guild.channels)
+                guild = discord.utils.find(lambda s: s.id == self.server_map[s_name].id, self.bot.guilds)
+                channel = discord.utils.find(lambda c: c.id == self.channel_map[c_name].id, guild.channels)
                 
                 if (self.voice is None):
                     self.voice = await channel.connect()
                 else:
                     await self.voice.move_to(channel)
 
-                self.voice.play(discord.PCMAudio(self.stream))
+                if (self.dv.get() != 'None' and not self.voice.is_playing()):
+                    self.voice.play(discord.PCMAudio(self.stream))
+
             else:
                 if (self.voice is not None):
                     await self.voice.disconnect()
@@ -112,21 +116,37 @@ class UI():
         except:
             logging.exception('Error on change_channel')
  
+    def escape_string(self, string):
+        '''Convert characters greater than uffff to replacement char'''
+        out = ''
+
+        for char in string:
+            out += char if char <= '\uffff' else '\ufffd'
+            
+        return out
+ 
     def set_cred(self, username):
-        self.cred.config(text='Logged in as: ' + username)
+        self.cred.config(text='Logged in as: ' + self.escape_string(username))
 
     def set_servers(self, servers):
         menu = self.server['menu']
-
-        for string in servers:
-            menu.add_command(label=string, command=lambda value=string: self.sv.set(value))
-
+        
+        for idx, server in enumerate(servers):
+            escaped = str(idx) + '. ' + self.escape_string(server.name)
+            menu.add_command(label=escaped, command=lambda value=escaped: self.sv.set(value))
+            self.server_map[escaped] = server
+        
     def set_channels(self, channels):
         menu = self.channel['menu']
         menu.delete(0, 'end')
-        
-        for string in channels:
-            menu.add_command(label=string, command=lambda value=string: self.cv.set(value))    
+        menu.add_command(label='None', command=lambda value='None': self.cv.set(value))    
+        self.cv.set('None')
+        self.channel_map.clear()
+
+        for idx, channel in enumerate(channels):
+            escaped = str(idx) + '. ' + self.escape_string(channel.name)
+            menu.add_command(label=escaped, command=lambda value=escaped: self.cv.set(value))
+            self.channel_map[escaped] = channel
  
     def toggle_mute(self):
         try:
