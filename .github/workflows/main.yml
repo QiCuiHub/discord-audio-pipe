@@ -32,7 +32,8 @@ jobs:
     - name: Compile to exe
       run: pyinstaller --hidden-import numpy 
                        --hidden-import sounddevice 
-                       --hidden-import discord 
+                       --hidden-import discord
+                       --hidden-import pkg_resources.py2_warn
                        --add-data "./libopus-0.x64.dll;./discord/bin/" 
                        --add-data "./libportaudio64bit.dll;./_sounddevice_data/portaudio-binaries/" 
                        --name dap 
