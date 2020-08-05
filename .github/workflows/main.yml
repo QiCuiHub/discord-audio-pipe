@@ -18,11 +18,13 @@ jobs:
     - name: Install python dependencies
       run: |
         c:\hostedtoolcache\windows\python\3.6.8\x64\python.exe -m pip install --upgrade pip
-        pip3 install discord.py[voice]
+        git clone https://github.com/Rapptz/discord.py
+        cd discord.py
+        pip3 install .[voice]
         pip3 install sounddevice
         pip3 install numpy
         pip3 install pyinstaller
- 
+
     - name: Download libraries
       shell: pwsh
       run: |
