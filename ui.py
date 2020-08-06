@@ -46,10 +46,15 @@ class UI():
         self.mute = tk.Button(self.root, textvariable=self.mv, command=self.toggle_mute)
         self.mute.grid(row=2, column=3, padx=5)
         
-        self.root.protocol('WM_DELETE_WINDOW', self.exit)
+        self.root.protocol('WM_DELETE_WINDOW', lambda: asyncio.ensure_future(self.exit()))
 
-    def exit(self):
-        asyncio.ensure_future(self.bot.logout())
+    async def exit(self):
+        # workaround for logout bug 
+        self.bot._closed = True
+        if self.voice:
+            await self.voice.disconnect()
+
+        await self.bot.ws.close()
         self.root.destroy()
 
     def change_device(self, options, dv):
