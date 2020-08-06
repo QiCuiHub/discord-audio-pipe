@@ -49,12 +49,7 @@ class UI():
         self.root.protocol('WM_DELETE_WINDOW', lambda: asyncio.ensure_future(self.exit()))
 
     async def exit(self):
-        # workaround for logout bug 
-        self.bot._closed = True
-        if self.voice:
-            await self.voice.disconnect()
-
-        await self.bot.ws.close()
+        await self.bot.logout()
         self.root.destroy()
 
     def change_device(self, options, dv):
