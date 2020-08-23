@@ -1,7 +1,7 @@
 import numpy as np
 import sounddevice as sd
 
-MME = 0
+DEFAULT = 0
 sd.default.channels = 2
 sd.default.dtype = 'int16'
 sd.default.latency = 'low'
@@ -20,7 +20,7 @@ class PCMStream:
         return data.tobytes()
 
     def change_device(self, num):
-        if (self.stream is not None):
+        if self.stream is not None:
             self.stream.stop()
             self.stream.close()
 
@@ -28,14 +28,11 @@ class PCMStream:
         self.stream.start()
 
 def query_devices():
-    index = 0
     options = {}
 
-    for item in sd.query_devices():
+    for index, item in enumerate(sd.query_devices()):
         # pip version only supports MME api
-        if (item.get('max_input_channels') > 0 and item.get('hostapi') == MME):
+        if 0 < item.get('max_input_channels') <= 2 and item.get('hostapi') == DEFAULT:
             options[item.get('name')] = index
-
-        index += 1
 
     return options

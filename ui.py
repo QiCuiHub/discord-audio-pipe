@@ -121,7 +121,11 @@ class UI():
                 if self.voice is not None:
                     await self.voice.disconnect()
                     self.voice = None
-                    
+
+        except discord.errors.ClientException as e:
+            if str(e) != 'Already connected to a voice channel.':
+                logging.exception('Error on change_channel')
+
         except:
             logging.exception('Error on change_channel')
  
