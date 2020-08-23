@@ -63,8 +63,8 @@ class UI():
 
     def change_device(self, options, dv):
         try:
-            if (dv.get() != 'None'):
-                if (self.voice is not None):
+            if dv.get() != 'None':
+                if self.voice is not None:
                     self.voice.stop()
                     self.stream.change_device(options.get(dv.get()))
                     self.voice.play(discord.PCMAudio(self.stream))
@@ -86,14 +86,14 @@ class UI():
         try:
             s_name = self.sv.get()
 
-            if (s_name != 'None'):
+            if s_name != 'None':
                 guild = discord.utils.find(lambda s: s.id == self.server_map[s_name].id, self.bot.guilds)
                 channel_names = [c for c in guild.channels if isinstance(c, discord.VoiceChannel)]
                 self.set_channels(channel_names)    
             else:
                 self.set_channels([])
 
-            if (self.voice is not None):
+            if self.voice is not None:
                 await self.voice.disconnect()
                 self.voice = None
                 
@@ -105,20 +105,20 @@ class UI():
             s_name = self.sv.get()
             c_name = self.cv.get()
         
-            if (c_name != 'None'):
+            if c_name != 'None':
                 guild = discord.utils.find(lambda s: s.id == self.server_map[s_name].id, self.bot.guilds)
                 channel = discord.utils.find(lambda c: c.id == self.channel_map[c_name].id, guild.channels)
                 
-                if (self.voice is None):
+                if self.voice is None or (self.voice is not None and not self.voice.is_connected()):
                     self.voice = await channel.connect()
                 else:
                     await self.voice.move_to(channel)
 
-                if (self.dv.get() != 'None' and not self.voice.is_playing()):
+                if self.dv.get() != 'None' and not self.voice.is_playing():
                     self.voice.play(discord.PCMAudio(self.stream))
 
             else:
-                if (self.voice is not None):
+                if self.voice is not None:
                     await self.voice.disconnect()
                     self.voice = None
                     
@@ -153,8 +153,8 @@ class UI():
  
     def toggle_mute(self):
         try:
-            if (self.voice is not None):
-                if (self.voice.is_playing()):
+            if self.voice is not None:
+                if self.voice.is_playing():
                     self.voice.pause()
                     self.mv.set('Resume')
                 else:
