@@ -24,8 +24,8 @@ class UI():
         self.dv = tk.StringVar(self.root)
         self.dv.trace('w', lambda *args: self.change_device(device_options, self.dv))
         self.dv.set(device_options.get(0))
-        device = tk.OptionMenu(self.root, self.dv, *device_options)
-        device.grid(row=2, column=0)
+        self.device = tk.OptionMenu(self.root, self.dv, *device_options)
+        self.device.grid(row=2, column=0)
 
         self.sv = tk.StringVar(self.root)
         self.sv.trace('w', lambda *args: asyncio.ensure_future(self.change_server()))
@@ -47,6 +47,19 @@ class UI():
         self.mute.grid(row=2, column=3, padx=5)
         
         self.root.protocol('WM_DELETE_WINDOW', lambda: asyncio.ensure_future(self.exit()))
+
+
+    def disable_ui(self):
+        self.device.configure(state="disabled")
+        self.server.configure(state="disabled")
+        self.channel.configure(state="disabled")
+        self.mute.configure(state="disabled")
+        
+    def enable_ui(self):
+        self.device.configure(state="normal")
+        self.server.configure(state="normal")
+        self.channel.configure(state="normal")
+        self.mute.configure(state="normal")
 
     async def exit(self):
         # workaround for logout bug 
@@ -99,7 +112,7 @@ class UI():
                 
         except:
             logging.exception('Error on change_server')
-        
+
     async def change_channel(self):
         try:
             s_name = self.sv.get()
@@ -109,10 +122,14 @@ class UI():
                 guild = discord.utils.find(lambda s: s.id == self.server_map[s_name].id, self.bot.guilds)
                 channel = discord.utils.find(lambda c: c.id == self.channel_map[c_name].id, guild.channels)
                 
-                if self.voice is None or (self.voice is not None and not self.voice.is_connected()):
+                self.disable_ui()
+                
+                if self.voice is None or self.voice is not None and not self.voice.is_connected():
                     self.voice = await channel.connect()
                 else:
                     await self.voice.move_to(channel)
+
+                self.enable_ui()
 
                 if self.dv.get() != 'None' and not self.voice.is_playing():
                     self.voice.play(discord.PCMAudio(self.stream))
@@ -121,10 +138,6 @@ class UI():
                 if self.voice is not None:
                     await self.voice.disconnect()
                     self.voice = None
-
-        except discord.errors.ClientException as e:
-            if str(e) != 'Already connected to a voice channel.':
-                logging.exception('Error on change_channel')
 
         except:
             logging.exception('Error on change_channel')
