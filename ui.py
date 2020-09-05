@@ -48,7 +48,6 @@ class UI():
         
         self.root.protocol('WM_DELETE_WINDOW', lambda: asyncio.ensure_future(self.exit()))
 
-
     def disable_ui(self):
         self.device.configure(state="disabled")
         self.server.configure(state="disabled")
@@ -129,8 +128,6 @@ class UI():
                 else:
                     await self.voice.move_to(channel)
 
-                self.enable_ui()
-
                 if self.dv.get() != 'None' and not self.voice.is_playing():
                     self.voice.play(discord.PCMAudio(self.stream))
 
@@ -141,6 +138,9 @@ class UI():
 
         except:
             logging.exception('Error on change_channel')
+            
+        finally:
+            self.enable_ui()
  
     def deEmojify(self, inputString):
         return ''.join(char for char in inputString if char <= '\uffff')
