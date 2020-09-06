@@ -38,12 +38,11 @@ class DeviceNotFoundError(Exception):
         return f'Devices \n{self.devices} \n Host APIs \n{pformat(self.host_apis)}'
 
 def query_devices():
-    options = {}
-
-    for index, item in enumerate(sd.query_devices()):
-        # pip version only supports MME api
-        if 0 < item.get('max_input_channels') <= 2 and item.get('hostapi') == DEFAULT:
-            options[item.get('name')] = index
+    options = {
+        item.get('name') : index
+        for index, item in enumerate(sd.query_devices())
+        if item.get('max_input_channels') > 0 and item.get('hostapi') == DEFAULT
+    }
 
     if not options:
         raise DeviceNotFoundError()
