@@ -39,9 +39,9 @@ class DeviceNotFoundError(Exception):
 
 def query_devices():
     options = {
-        item.get('name') : index
-        for index, item in enumerate(sd.query_devices())
-        if item.get('max_input_channels') > 0 and item.get('hostapi') == DEFAULT
+        device.get('name') : index
+        for index, device in enumerate(sd.query_devices())
+        if device.get('max_input_channels') > 0 and device.get('hostapi') == DEFAULT
     }
 
     if not options:
