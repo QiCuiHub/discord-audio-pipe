@@ -1,3 +1,4 @@
+import sys
 import sound
 import discord
 import logging
@@ -23,6 +24,7 @@ async def connect(bot, stream, device_id, channel_id, token):
 
     except:
         logging.exception('Error on cli connect')
+        sys.exit(1)
 
 async def query(bot, token):
     await bot.login(token)
