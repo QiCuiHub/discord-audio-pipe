@@ -5,14 +5,14 @@ import logging
 import tkinter as tk
 
 class GUI():
-    def __init__(self, bot):
+    def __init__(self, bot, stream):
         self.root = tk.Tk()
         self.root.title('Discord Audio Pipe')
 
         self.bot = bot
         self.voice = None
-        self.stream = sound.PCMStream()
-        
+        self.stream = stream
+
         self.cred = tk.Label(self.root, text='Connecting...', fg='black')
         self.cred.grid(row=0, column=0, columnspan=2, sticky='W')
         
@@ -60,10 +60,10 @@ class GUI():
         self.channel.configure(state="normal")
         self.mute.configure(state="normal")
 
-    async def ready(bot_ui):
+    async def ready(self):
         await self.bot.wait_until_ready()
         
-        self.set_cred(bot.user.name)
+        self.set_cred(self.bot.user.name)
         self.set_servers([guild for guild in self.bot.guilds])
 
     async def exit(self):

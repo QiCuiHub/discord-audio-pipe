@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 import os
+import sys
 import gui
 import cli
+import sound
 import asyncio
 import discord
 import logging
@@ -10,7 +12,7 @@ import platform
 from tkinter import messagebox
 
 # set display if not set
-if os.environ.get('DISPLAY', '') == '' and platform.system() == 'Linux':
+if os.environ.get('DISPLAY', None) is None and platform.system() == 'Linux':
     os.environ.__setitem__('DISPLAY', ':0.0')
 
 # error logging
@@ -24,22 +26,16 @@ root_logger.addHandler(fh)
 
 # commandline args
 parser = argparse.ArgumentParser(description='Discord Audio Pipe')
-connect = parser.add_argument_group('Connect')
-query = parser.add_argument_group('Query')
+connect = parser.add_argument_group('Command Line Mode')
+query = parser.add_argument_group('Queries')
 
-parser.add_argument('-g', '--gui', dest='gui', action='store_true',
-                   help='Start a graphical interface (default when no args)')
-
-connect.add_argument('-s', '--server', dest='server', action='store_true',
-                   help='The server to connect to as an id')
-
-connect.add_argument('-c', '--channel', dest='channel', action='store_true',
+connect.add_argument('-c', '--channel', dest='channel', action='store', type=int,
                    help='The channel to connect to as an id')
 
-connect.add_argument('-d', '--device', dest='device', action='store_true',
+connect.add_argument('-d', '--device', dest='device', action='store', type=int,
                    help='The device to listen from as an index')
 
-parser.add_argument('-t', '--token', dest='token', action='store', default=None
+parser.add_argument('-t', '--token', dest='token', action='store', default=None,
                    help='The token for the bot')
 
 query.add_argument('-q', '--query', dest='query', action='store_true',
@@ -49,27 +45,53 @@ query.add_argument('-o', '--online', dest='online', action='store_true',
                    help='Query accessible servers and channels, requires token')
 
 args = parser.parse_args()
-is_gui = args.gui or not any([args.server, args.channel, args.device])
+is_gui = not any([args.channel, args.device, args.query, args.online])
 
-# run program
+bot = discord.Client()
+stream = sound.PCMStream()
+
+async def main(bot):
+    try:
+        token = args.token
+
+        if token is None:
+            token = open('token.txt', 'r').read()
+
+        # query devices
+        if args.query:
+            for device, index in sound.query_devices().items():
+                print(index, device)
+            return
+
+        # query servers and channels
+        if args.online:
+            if token is None: print('No Token detected')
+            else: await cli.query(bot, token)
+            return
+
+        if is_gui:
+            bot_ui = gui.GUI(bot, stream)
+            asyncio.ensure_future(bot_ui.run_tk())
+            asyncio.ensure_future(bot_ui.ready())
+
+        else:
+            asyncio.ensure_future(cli.connect(bot, args.device, args.channel, token))
+
+        await bot.start(token)
+
+    except FileNotFoundError:
+        if is_gui: messagebox.showerror('Token Error', 'No token detected')
+        else: print('No token detected')
+
+    except:
+        logging.exception('Error on main')
+
+loop = asyncio.get_event_loop()
+
 try:
-    token = args.token
-
-    if token is None:
-        token = open('token.txt', 'r').read()
-    
-    bot = discord.Client()
-
-    if is_gui:
-        bot_ui = gui.GUI(bot)
-        asyncio.ensure_future(bot_ui.run_tk())
-        asyncio.ensure_future(bot_ui.ready())
-
-    bot.run(token)
-
-except FileNotFoundError:
-    if is_gui: messagebox.showerror('Token Error', "No token detected")
-    else: print('No token detected')
-
-except:
-    logging.exception('Error on main')
+    loop.run_until_complete(main(bot))
+except KeyboardInterrupt:
+    print('Exiting...')
+    loop.run_until_complete(bot.logout())
+finally:
+    loop.close()

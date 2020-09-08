@@ -1,23 +1,39 @@
 import sound
 import discord
+import logging
 
-async def connect(bot, device, server, channel):
-    stream = sound.PCMStream()
-    stream.change_device(device)
+async def connect(bot, device_id, channel_id, token):
+    try:
+        print('Connecting...')
+        await bot.wait_until_ready()
+        print(f'Logged in as {bot.user.name}')
 
-    guild = discord.utils.find(server, bot.guilds)
-    channel = discord.utils.find(channel, guilds.channels)
+        selected = None
 
-    voice = await channel.connect()
-    voice.play(discord.PCMAudio(stream))
-    
-async def disconnect(bot):
-    bot._closed = True
+        for guild in bot.guilds:
+            for channel in guild.channels:
+                if channel_id == channel.id:
+                    selected = channel
 
-    for voice in bot.voice_clients:
-        try:
-            await voice.disconnect()
-        except Exception:
-            pass
+        stream = sound.PCMStream()
+        stream.change_device(device_id)
+        
+        voice = await selected.connect()
+        voice.play(discord.PCMAudio(stream))
 
-    await bot.ws.close()
+        print(f'Playing audio in {selected.name}')
+
+    except:
+        logging.exception('Error on cli connect')
+
+async def query(bot, token):
+    await bot.login(token)
+
+    async for guild in bot.fetch_guilds(limit=150):
+        print(guild.id, guild.name)
+        channels = await guild.fetch_channels()
+        
+        for channel in channels:
+            print('\t', channel.id, channel.name)
+
+    await bot.logout()
