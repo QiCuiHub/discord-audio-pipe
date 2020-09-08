@@ -9,18 +9,13 @@ async def connect(bot, stream, device_id, channel_id, token):
         await bot.wait_until_ready()
         print(f'Logged in as {bot.user.name}')
 
-        selected = None
-
-        for guild in bot.guilds:
-            for channel in guild.channels:
-                if channel_id == channel.id:
-                    selected = channel
-
+        channel = bot.get_channel(channel_id)
         stream.change_device(device_id)        
-        voice = await selected.connect()
+
+        voice = await channel.connect()
         voice.play(discord.PCMAudio(stream))
 
-        print(f'Playing audio in {selected.name}')
+        print(f'Playing audio in {channel.name}')
 
     except:
         logging.exception('Error on cli connect')
