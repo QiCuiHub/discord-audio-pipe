@@ -33,7 +33,7 @@ parser.add_argument('-t', '--token', dest='token', action='store', default=None,
                    help='The token for the bot')
 
 query.add_argument('-q', '--query', dest='query', action='store_true',
-                   help='Query useable devices')
+                   help='Query compatible audio devices')
 
 query.add_argument('-o', '--online', dest='online', action='store_true',
                    help='Query accessible servers and channels, requires token')
