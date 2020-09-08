@@ -91,5 +91,4 @@ try:
 except KeyboardInterrupt:
     print('Exiting...')
     loop.run_until_complete(bot.logout())
-finally:
     loop.close()
