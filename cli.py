@@ -2,7 +2,7 @@ import sound
 import discord
 import logging
 
-async def connect(bot, device_id, channel_id, token):
+async def connect(bot, stream, device_id, channel_id, token):
     try:
         print('Connecting...')
         await bot.wait_until_ready()
@@ -15,9 +15,7 @@ async def connect(bot, device_id, channel_id, token):
                 if channel_id == channel.id:
                     selected = channel
 
-        stream = sound.PCMStream()
-        stream.change_device(device_id)
-        
+        stream.change_device(device_id)        
         voice = await selected.connect()
         voice.play(discord.PCMAudio(stream))
 

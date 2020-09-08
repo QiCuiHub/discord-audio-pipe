@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import os
 import sys
 import gui
 import cli
@@ -8,12 +7,7 @@ import asyncio
 import discord
 import logging
 import argparse
-import platform
 from tkinter import messagebox
-
-# set display if not set
-if os.environ.get('DISPLAY', None) is None and platform.system() == 'Linux':
-    os.environ.__setitem__('DISPLAY', ':0.0')
 
 # error logging
 root_logger = logging.getLogger()
@@ -47,6 +41,7 @@ query.add_argument('-o', '--online', dest='online', action='store_true',
 args = parser.parse_args()
 is_gui = not any([args.channel, args.device, args.query, args.online])
 
+# main
 bot = discord.Client()
 stream = sound.PCMStream()
 
@@ -68,14 +63,16 @@ async def main(bot):
             if token is None: print('No Token detected')
             else: await cli.query(bot, token)
             return
-
+        
+        # GUI
         if is_gui:
             bot_ui = gui.GUI(bot, stream)
             asyncio.ensure_future(bot_ui.run_tk())
             asyncio.ensure_future(bot_ui.ready())
 
+        # CLI
         else:
-            asyncio.ensure_future(cli.connect(bot, args.device, args.channel, token))
+            asyncio.ensure_future(cli.connect(bot, stream, args.device, args.channel, token))
 
         await bot.start(token)
 
@@ -86,6 +83,7 @@ async def main(bot):
     except:
         logging.exception('Error on main')
 
+# run program
 loop = asyncio.get_event_loop()
 
 try:
