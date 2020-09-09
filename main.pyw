@@ -42,10 +42,7 @@ args = parser.parse_args()
 is_gui = not any([args.channel, args.device, args.query, args.online])
 
 # main
-bot = discord.Client()
-stream = sound.PCMStream()
-
-async def main(bot):
+async def main(bot, stream):
     try:
         token = args.token
 
@@ -84,10 +81,12 @@ async def main(bot):
         logging.exception('Error on main')
 
 # run program
+bot = discord.Client()
+stream = sound.PCMStream()
 loop = asyncio.get_event_loop()
 
 try:
-    loop.run_until_complete(main(bot))
+    loop.run_until_complete(main(bot, stream))
 except KeyboardInterrupt:
     print('Exiting...')
     loop.run_until_complete(bot.logout())
