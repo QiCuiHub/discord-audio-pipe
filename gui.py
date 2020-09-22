@@ -89,7 +89,7 @@ class GUI():
                 else:
                     self.stream.change_device(options.get(dv.get()))
                     
-        except:
+        except Exception:
             logging.exception('Error on change_device')
 
     async def run_tk(self, interval=0.05):
@@ -115,7 +115,7 @@ class GUI():
                 await self.voice.disconnect()
                 self.voice = None
                 
-        except:
+        except Exception:
             logging.exception('Error on change_server')
 
     async def change_channel(self):
@@ -142,7 +142,7 @@ class GUI():
                     await self.voice.disconnect()
                     self.voice = None
 
-        except:
+        except Exception:
             logging.exception('Error on change_channel')
             
         finally:
@@ -184,5 +184,5 @@ class GUI():
                     self.voice.resume()
                     self.mv.set('Mute')
                     
-        except:
+        except Exception:
             logging.exception('Error on toggle_mute')

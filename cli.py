@@ -1,5 +1,4 @@
 import sys
-import sound
 import discord
 import logging
 
@@ -17,7 +16,7 @@ async def connect(bot, stream, device_id, channel_id, token):
 
         print(f'Playing audio in {channel.name}')
 
-    except:
+    except Exception:
         logging.exception('Error on cli connect')
         sys.exit(1)
 

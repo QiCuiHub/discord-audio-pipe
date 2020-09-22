@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import sys
 import gui
 import cli
 import sound
@@ -77,7 +76,7 @@ async def main(bot, stream):
         if is_gui: messagebox.showerror('Token Error', 'No token detected')
         else: print('No token detected')
 
-    except:
+    except Exception:
         logging.exception('Error on main')
 
 # run program
