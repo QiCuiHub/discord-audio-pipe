@@ -130,7 +130,7 @@ class GUI():
                 self.disable_ui()
                 
                 if self.voice is None or self.voice is not None and not self.voice.is_connected():
-                    self.voice = await channel.connect()
+                    self.voice = await channel.connect(timeout=10)
                 else:
                     await self.voice.move_to(channel)
 
