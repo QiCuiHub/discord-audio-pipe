@@ -15,12 +15,13 @@ Python 3.5+
 ```
     $ pip3 install discord.py[voice]
     $ pip3 install sounddevice
+    $ pip3 install PyQt5
 ```
 In some cases PortAudio and Tkinter may be missing, on Ubuntu they can be installed with
 ```
     $ sudo apt-get install libportaudio2
-    $ sudo apt-get install python3-tk
 ```
+
 ## CLI
 Running `main.pyw` / ``dap.exe`` without any arguments will start the graphical interface. Alternatively, discord-audio-pipe can  be run from the command line and contains some tools to query system audio devices and accessible channels.
 ```
