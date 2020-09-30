@@ -1,4 +1,5 @@
 __pycache__/
+build/
 token.txt
 *.exe
 *.log
