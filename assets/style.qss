@@ -76,7 +76,8 @@ QPushButton#mute {
     background-color: #7289DA;
     color: white;
     min-height: 30px;
-    width: 80px;
+    min-width: 80px;
+    max-width: 80px;
 }
 
 QPushButton#mute::hover {

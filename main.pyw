@@ -7,8 +7,6 @@ import discord
 import logging
 import argparse
 from PyQt5.QtWidgets import QApplication
-from PyQt5.QtCore import QTimer
-
 
 # error logging
 root_logger = logging.getLogger()
