@@ -5,7 +5,11 @@ import asyncio
 import logging
 import discord
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtGui import QFontDatabase, QFontMetrics
+from PyQt5.QtGui import (
+    QFontDatabase, 
+    QFontMetrics,
+    QIcon
+)
 from PyQt5.QtCore import (
     Qt,
     QCoreApplication, 
@@ -83,6 +87,10 @@ class GUI(QMainWindow):
         QDir.setCurrent(bundle_dir)
 
         self.app = app
+        window_icon = QIcon('./assets/favicon.ico')
+        self.setWindowTitle('Discord Audio Pipe')
+        self.app.setWindowIcon(window_icon)
+
         self.bot = bot
         self.voice = None
         self.stream = stream
