@@ -1,11 +1,17 @@
+import os
 import sys
 import sound
 import asyncio
 import logging
 import discord
-from PyQt5.QtGui import QFontDatabase, QFontMetrics
-from PyQt5.QtCore import Qt, QCoreApplication, QEventLoop
 from PyQt5.QtSvg import QSvgWidget
+from PyQt5.QtGui import QFontDatabase, QFontMetrics
+from PyQt5.QtCore import (
+    Qt,
+    QCoreApplication, 
+    QEventLoop, 
+    QDir
+)
 from PyQt5.QtWidgets import (
     QMainWindow,
     QPushButton,
@@ -17,6 +23,12 @@ from PyQt5.QtWidgets import (
     QHBoxLayout,
     QStyledItemDelegate
 )
+
+if getattr(sys, 'frozen', False):
+    bundle_dir = sys._MEIPASS
+else:
+    bundle_dir = os.path.dirname(os.path.abspath(__file__))
+
 
 class TitleBar(QFrame):
     def __init__(self, parent):
@@ -68,6 +80,7 @@ class GUI(QMainWindow):
         super(GUI, self).__init__()
         self.setWindowFlags(self.windowFlags() | Qt.FramelessWindowHint)
         self.position = None
+        QDir.setCurrent(bundle_dir)
 
         self.app = app
         self.bot = bot
