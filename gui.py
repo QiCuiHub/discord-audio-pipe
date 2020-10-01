@@ -117,7 +117,7 @@ class GUI(QMainWindow):
 
         device_options = sound.query_devices()
         for device in device_options:
-            self.devices.addItem(device, device_options[device])
+            self.devices.addItem(device + '   ', device_options[device])
 
         # servers
         self.servers = QComboBox(self)
@@ -199,7 +199,7 @@ class GUI(QMainWindow):
             if size > min_width:
                 min_width = size
 
-        combobox.setMinimumWidth(min_width + 25)
+        combobox.setMinimumWidth(min_width + 30)
 
     async def ready(self):
         await self.bot.wait_until_ready()
