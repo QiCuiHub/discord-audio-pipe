@@ -3,15 +3,13 @@ name: CI
 on:
   release:
     types: [prereleased, published]
-    branches:
-      - master
 
 jobs:
   build:
     runs-on: windows-latest
-    
+
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v2
       with:
         fetch-depth: 1
 

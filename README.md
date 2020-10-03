@@ -17,7 +17,7 @@ Python 3.5+
     $ pip3 install sounddevice
     $ pip3 install PyQt5
 ```
-In some cases PortAudio and Tkinter may be missing, on Ubuntu they can be installed with
+In some cases PortAudio may be missing, on Ubuntu they can be installed with
 ```
     $ sudo apt-get install libportaudio2
 ```
