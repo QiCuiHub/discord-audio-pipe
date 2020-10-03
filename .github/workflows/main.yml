@@ -22,7 +22,7 @@ jobs:
         cd discord.py
         pip3 install .[voice]
         pip3 install sounddevice
-        pip3 install numpy
+        pip3 install PyQt5
         pip3 install pyinstaller
 
     - name: Download libraries
@@ -32,14 +32,7 @@ jobs:
         Invoke-WebRequest https://github.com/spatialaudio/portaudio-binaries/raw/master/libportaudio64bit.dll -OutFile ./libportaudio64bit.dll
  
     - name: Compile to exe
-      run: pyinstaller --hidden-import numpy 
-                       --hidden-import sounddevice 
-                       --hidden-import discord
-                       --hidden-import pkg_resources.py2_warn
-                       --add-data "./libopus-0.x64.dll;./discord/bin/" 
-                       --add-data "./libportaudio64bit.dll;./_sounddevice_data/portaudio-binaries/" 
-                       --name dap 
-                       --onefile main.pyw
+      run: pyinstaller --name dap --onefile main.spec
 
     - name: Release
       shell: pwsh
