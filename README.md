@@ -15,6 +15,7 @@ Python 3.5+
 ```
     $ pip3 install discord.py[voice]
     $ pip3 install sounddevice
+    $ pip3 install numpy
 ```
 In some cases PortAudio and Tkinter may be missing, on Ubuntu they can be installed with
 ```
