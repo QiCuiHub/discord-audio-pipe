@@ -24,8 +24,8 @@ a = Analysis(
 a.binaries = a.binaries - TOC([
     ('opengl32sw.dll', None, None),
     ('d3dcompiler_47.dll', None, None),
-    ('libEGL.dll', None, None),
-    ('libGLESv2.dll', None, None),
+    ('libegl.dll', None, None),
+    ('libglesv2.dll', None, None),
     ('qt5nfc.dll', None, None),
     ('qt5opengl.dll', None, None),
     ('qt5positioning.dll', None, None),
