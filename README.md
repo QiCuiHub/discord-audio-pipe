@@ -1,6 +1,5 @@
-
 # discord-audio-pipe
-Barebones program to send stereo computer audio (microphone, stereo mix, virtual audio cable, etc) into a discord bot.
+Simple program to send stereo audio (microphone, stereo mix, virtual audio cable, etc) into a discord bot.
 
 You can download the latest release [**here**](https://github.com/QiCuiHub/discord-audio-pipe/releases)
 - If you are using the executable, run ``dap.exe``  
@@ -17,13 +16,14 @@ Python 3.5+
     $ pip3 install sounddevice
     $ pip3 install PyQt5
 ```
-In some cases PortAudio may be missing, on Ubuntu they can be installed with
+In some cases PortAudio and xcb libraries may be missing on linux. On Ubuntu they can be installed with
 ```
     $ sudo apt-get install libportaudio2
+    $ sudo apt-get install libxcb-xinerama0
 ```
 
 ## CLI
-Running `main.pyw` / ``dap.exe`` without any arguments will start the graphical interface. Alternatively, discord-audio-pipe can  be run from the command line and contains some tools to query system audio devices and accessible channels.
+Running `main.pyw` / ``dap.exe`` without any arguments will start the graphical interface. Alternatively, discord-audio-pipe can be run from the command line and contains some tools to query system audio devices and accessible channels.
 ```
 usage: main.pyw [-h] [-c CHANNEL] [-d DEVICE] [-t TOKEN] [-q] [-o]
 
