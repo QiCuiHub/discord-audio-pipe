@@ -6,14 +6,14 @@ import logging
 import discord
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtGui import (
-    QFontDatabase, 
+    QFontDatabase,
     QFontMetrics,
     QIcon
 )
 from PyQt5.QtCore import (
     Qt,
-    QCoreApplication, 
-    QEventLoop, 
+    QCoreApplication,
+    QEventLoop,
     QDir
 )
 from PyQt5.QtWidgets import (
@@ -36,42 +36,54 @@ else:
 
 class TitleBar(QFrame):
     def __init__(self, parent):
+        # title bar
         super(TitleBar, self).__init__()
-        self.parent = parent
         self.setObjectName('titlebar')
 
+        # discord
+        self.parent = parent
+        self.bot = parent.bot
+
+        # layout
         layout = QHBoxLayout()
-        layout.setContentsMargins(0,0,0,0)
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(layout)
 
+        # window title
         title = QLabel("Discord Audio Pipe")
-        layout.addWidget(title)
 
-        layout.addStretch()
-
+        # minimize
         minimize_button = QPushButton('—')
-        minimize_button.clicked.connect(self.minimize)
         minimize_button.setObjectName('minimize')
         layout.addWidget(minimize_button)
 
+        # close
         close_button = QPushButton('✕')
-        close_button.clicked.connect(
-            lambda: asyncio.ensure_future(self.close())
-        )
         close_button.setObjectName('close')
         layout.addWidget(close_button)
 
-        self.setLayout(layout)
+        # add widgets
+        layout.addWidget(title)
+        layout.addStretch()
+        layout.addWidget(minimize_button)
+        layout.addWidget(close_button)
+
+        # events
+        minimize_button.clicked.connect(self.minimize)
+        close_button.clicked.connect(
+            lambda: asyncio.ensure_future(self.close())
+        )
 
     async def close(self):
         # workaround for logout bug
-        for voice in self.parent.bot.voice_clients:
+        for voice in self.bot.voice_clients:
             try:
                 await voice.disconnect()
             except Exception:
                 pass
 
-        self.parent.bot._closed = True
-        await self.parent.bot.ws.close()
+        self.bot._closed = True
+        await self.bot.ws.close()
         self.parent.close()
 
     def minimize(self):
@@ -81,30 +93,31 @@ class TitleBar(QFrame):
 class GUI(QMainWindow):
 
     def __init__(self, app, bot, stream):
+        # app
         super(GUI, self).__init__()
-        self.setWindowFlags(self.windowFlags() | Qt.FramelessWindowHint)
-        self.position = None
         QDir.setCurrent(bundle_dir)
-
         self.app = app
+
+        # window info
+        self.setWindowFlags(self.windowFlags() | Qt.FramelessWindowHint)
         window_icon = QIcon('./assets/favicon.ico')
         self.setWindowTitle('Discord Audio Pipe')
         self.app.setWindowIcon(window_icon)
+        self.position = None
 
+        # discord
         self.bot = bot
         self.voice = None
         self.stream = stream
 
-        titlebar = TitleBar(self)
+        # layout
         central = QWidget()
         layout = QGridLayout()
         central.setLayout(layout)
 
+        # loading
         self.info = QLabel('Connecting...')
-        layout.addWidget(self.info, 0, 0, 1, 3)
-
         self.loading = QSvgWidget('./assets/loading.svg')
-        layout.addWidget(self.loading, 0, 3, alignment=Qt.AlignHCenter)
 
         # devices
         self.devices = QComboBox(self)
@@ -112,12 +125,9 @@ class GUI(QMainWindow):
         self.devices.setPlaceholderText('None')
         device_lb = QLabel('Devices')
         device_lb.setObjectName('label')
-        layout.addWidget(device_lb, 1, 0)
-        layout.addWidget(self.devices, 2, 0)
 
-        device_options = sound.query_devices()
-        for device in device_options:
-            self.devices.addItem(device + '   ', device_options[device])
+        for device, idx in sound.query_devices().items():
+            self.devices.addItem(device + '   ', idx)
 
         # servers
         self.servers = QComboBox(self)
@@ -125,8 +135,6 @@ class GUI(QMainWindow):
         self.servers.addItem('None', None)
         server_lb = QLabel('Servers     ')
         server_lb.setObjectName('label')
-        layout.addWidget(server_lb, 1, 1)
-        layout.addWidget(self.servers, 2, 1)
 
         # channels
         self.channels = QComboBox(self)
@@ -134,13 +142,21 @@ class GUI(QMainWindow):
         self.channels.addItem('None', None)
         channel_lb = QLabel('Channels  ')
         channel_lb.setObjectName('label')
-        layout.addWidget(channel_lb, 1, 2)
-        layout.addWidget(self.channels, 2, 2)
 
         # mute
         self.mute = QPushButton('Mute', self)
         self.mute.setObjectName('mute')
-        layout.addWidget(self.mute, 2, 3)
+
+        # add widgets
+        layout.addWidget(self.info,     0, 0, 1, 3)
+        layout.addWidget(self.loading,  0, 3, alignment=Qt.AlignHCenter)
+        layout.addWidget(device_lb,     1, 0)
+        layout.addWidget(self.devices,  2, 0)
+        layout.addWidget(server_lb,     1, 1)
+        layout.addWidget(self.servers,  2, 1)
+        layout.addWidget(channel_lb,    1, 2)
+        layout.addWidget(self.channels, 2, 2)
+        layout.addWidget(self.mute,     2, 3)
 
         # events
         self.devices.currentTextChanged.connect(self.change_device)
@@ -152,6 +168,8 @@ class GUI(QMainWindow):
         )
         self.mute.clicked.connect(self.toggle_mute)
 
+        # build window
+        titlebar = TitleBar(self)
         self.setMenuWidget(titlebar)
         self.setCentralWidget(central)
         self.disable_ui()
@@ -186,10 +204,13 @@ class GUI(QMainWindow):
 
     async def run_Qt(self, interval=0.01):
         while True:
-            QCoreApplication.processEvents(QEventLoop.AllEvents, interval * 1000)
+            QCoreApplication.processEvents(
+                QEventLoop.AllEvents,
+                interval * 1000
+            )
             await asyncio.sleep(interval)
 
-    def resize(self, combobox):
+    def resize_combobox(self, combobox):
         font = combobox.property('font')
         metrics = QFontMetrics(font)
         min_width = 0
@@ -208,10 +229,10 @@ class GUI(QMainWindow):
         for guild in self.bot.guilds:
             self.servers.addItem(guild.name, guild)
 
-        self.resize(self.servers)
+        self.resize_combobox(self.servers)
         self.enable_ui()
 
-    def load(self):
+    def load_style(self):
         QFontDatabase.addApplicationFont('./assets/Roboto-Black.ttf')
 
         with open('./assets/style.qss', 'r') as qss:
@@ -250,7 +271,7 @@ class GUI(QMainWindow):
                     if isinstance(channel, discord.VoiceChannel):
                         self.channels.addItem(channel.name, channel)
 
-            self.resize(self.channels)
+            self.resize_combobox(self.channels)
 
             if self.voice is not None:
                 await self.voice.disconnect()
@@ -268,8 +289,8 @@ class GUI(QMainWindow):
                 self.disable_ui()
 
                 not_connected = (
-                    self.voice is None or 
-                    self.voice is not None and 
+                    self.voice is None or
+                    self.voice is not None and
                     not self.voice.is_connected()
                 )
 
@@ -278,7 +299,12 @@ class GUI(QMainWindow):
                 else:
                     await self.voice.move_to(selection)
 
-                if self.devices.currentData() is not None and not self.voice.is_playing():
+                not_playing = (
+                    self.devices.currentData() is not None and
+                    not self.voice.is_playing()
+                )
+
+                if not_playing:
                     self.voice.play(discord.PCMAudio(self.stream))
 
             else:

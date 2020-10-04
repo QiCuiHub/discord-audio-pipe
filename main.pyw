@@ -67,7 +67,7 @@ async def main(bot, stream):
         if is_gui:
             app = QApplication(sys.argv)
             bot_ui = gui.GUI(app, bot, stream)
-            bot_ui.load()
+            bot_ui.load_style()
             asyncio.ensure_future(bot_ui.ready())
             asyncio.ensure_future(bot_ui.run_Qt())
 
