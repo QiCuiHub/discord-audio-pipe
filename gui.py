@@ -274,6 +274,7 @@ class GUI(QMainWindow):
             self.resize_combobox(self.channels)
 
             if self.voice is not None:
+                self.voice.stop()
                 await self.voice.disconnect()
                 self.voice = None
 
@@ -309,6 +310,7 @@ class GUI(QMainWindow):
 
             else:
                 if self.voice is not None:
+                    self.voice.stop()
                     await self.voice.disconnect()
                     self.voice = None
 
