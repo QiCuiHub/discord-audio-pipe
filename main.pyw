@@ -9,13 +9,17 @@ import argparse
 from PyQt5.QtWidgets import QApplication
 
 # error logging
-root_logger = logging.getLogger()
-root_logger.setLevel(logging.ERROR)
+formatter = logging.Formatter(
+    fmt='%(asctime)s %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 
 fh = logging.FileHandler('DAP_errors.log', delay=True)
 fh.setLevel(logging.ERROR)
+fh.setFormatter(formatter)
 
-root_logger.addHandler(fh)
+base_logger = logging.getLogger()
+base_logger.addHandler(fh)
 
 # commandline args
 parser = argparse.ArgumentParser(description='Discord Audio Pipe')
