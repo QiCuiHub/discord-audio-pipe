@@ -8,19 +8,6 @@ import logging
 import argparse
 from PyQt5.QtWidgets import QApplication, QMessageBox
 
-# error logging
-formatter = logging.Formatter(
-    fmt='%(asctime)s %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
-)
-
-error_handler = logging.FileHandler('DAP_errors.log', delay=True)
-error_handler.setLevel(logging.ERROR)
-error_handler.setFormatter(formatter)
-
-base_logger = logging.getLogger()
-base_logger.addHandler(error_handler)
-
 # commandline args
 parser = argparse.ArgumentParser(description='Discord Audio Pipe')
 connect = parser.add_argument_group('Command Line Mode')
@@ -29,20 +16,47 @@ query = parser.add_argument_group('Queries')
 parser.add_argument('-t', '--token', dest='token', action='store',
                     default=None, help='The token for the bot')
 
+parser.add_argument('-v', '--verbose', dest='verbose', action='store_true',
+                    help='Enable verbose logging')
+
 connect.add_argument('-c', '--channel', dest='channel', action='store',
                      type=int, help='The channel to connect to as an id')
 
 connect.add_argument('-d', '--device', dest='device', action='store', type=int,
                      help='The device to listen from as an index')
 
-query.add_argument('-q', '--query', dest='query', action='store_true',
+query.add_argument('-D', '--devices', dest='query', action='store_true',
                    help='Query compatible audio devices')
 
-query.add_argument('-o', '--online', dest='online', action='store_true',
+query.add_argument('-C', '--channels', dest='online', action='store_true',
                    help='Query servers and channels (requires token)')
 
 args = parser.parse_args()
 is_gui = not any([args.channel, args.device, args.query, args.online])
+
+# error logging
+error_formatter = logging.Formatter(
+    fmt='%(asctime)s %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+
+error_handler = logging.FileHandler('DAP_errors.log', delay=True)
+error_handler.setLevel(logging.ERROR)
+error_handler.setFormatter(error_formatter)
+
+base_logger = logging.getLogger()
+base_logger.addHandler(error_handler)
+
+# verbose logs
+if args.verbose:
+    debug_formatter = logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s')
+
+    debug_handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+    debug_handler.setFormatter(debug_formatter)
+
+    debug_logger = logging.getLogger('discord')
+    debug_logger.setLevel(logging.DEBUG)
+    debug_logger.addHandler(debug_handler)
 
 # main
 async def main(app, bot, stream, msg):
