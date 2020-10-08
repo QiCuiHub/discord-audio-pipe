@@ -6,7 +6,7 @@ import asyncio
 import discord
 import logging
 import argparse
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QMessageBox
 
 # error logging
 formatter = logging.Formatter(
@@ -14,12 +14,12 @@ formatter = logging.Formatter(
     datefmt='%Y-%m-%d %H:%M:%S'
 )
 
-fh = logging.FileHandler('DAP_errors.log', delay=True)
-fh.setLevel(logging.ERROR)
-fh.setFormatter(formatter)
+error_handler = logging.FileHandler('DAP_errors.log', delay=True)
+error_handler.setLevel(logging.ERROR)
+error_handler.setFormatter(formatter)
 
 base_logger = logging.getLogger()
-base_logger.addHandler(fh)
+base_logger.addHandler(error_handler)
 
 # commandline args
 parser = argparse.ArgumentParser(description='Discord Audio Pipe')
@@ -45,8 +45,8 @@ args = parser.parse_args()
 is_gui = not any([args.channel, args.device, args.query, args.online])
 
 # main
-async def main(bot, stream):
-    try:
+async def main(app, bot, stream, msg):
+    try:    
         token = args.token
         if token is None:
             token = open('token.txt', 'r').read()
@@ -69,9 +69,7 @@ async def main(bot, stream):
 
         # GUI
         if is_gui:
-            app = QApplication(sys.argv)
             bot_ui = gui.GUI(app, bot, stream)
-            bot_ui.load_style()
             asyncio.ensure_future(bot_ui.ready())
             asyncio.ensure_future(bot_ui.run_Qt())
 
@@ -88,18 +86,38 @@ async def main(bot, stream):
         await bot.start(token)
 
     except FileNotFoundError:
-        logging.exception('No Token Provided')
+        if is_gui:
+            msg.setWindowTitle('Token Error')
+            msg.setText('No Token Provided')
+            msg.exec();
+
+        else:
+            print('No Token Provided')
+
+    except discord.errors.LoginFailure:
+        if is_gui:
+            msg.setWindowTitle('Login Error')
+            msg.setText('Login Failed')
+            msg.exec();        
+
+        else:
+            print('Login Failed')
 
     except Exception:
         logging.exception('Error on main')
 
 # run program
+app = QApplication(sys.argv)
 bot = discord.Client()
 stream = sound.PCMStream()
+
+msg = QMessageBox()
+msg.setIcon(QMessageBox.Information)
+
 loop = asyncio.get_event_loop()
 
 try:
-    loop.run_until_complete(main(bot, stream))
+    loop.run_until_complete(main(app, bot, stream, msg))
 except KeyboardInterrupt:
     print('Exiting...')
     loop.run_until_complete(bot.logout())

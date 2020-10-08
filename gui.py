@@ -173,6 +173,14 @@ class GUI(QMainWindow):
         self.setMenuWidget(titlebar)
         self.setCentralWidget(central)
         self.disable_ui()
+        
+        # load styles
+        QFontDatabase.addApplicationFont('./assets/Roboto-Black.ttf')
+        with open('./assets/style.qss', 'r') as qss:
+            self.app.setStyleSheet(qss.read())
+
+        # show window
+        self.show()
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -231,14 +239,6 @@ class GUI(QMainWindow):
 
         self.resize_combobox(self.servers)
         self.enable_ui()
-
-    def load_style(self):
-        QFontDatabase.addApplicationFont('./assets/Roboto-Black.ttf')
-
-        with open('./assets/style.qss', 'r') as qss:
-            self.app.setStyleSheet(qss.read())
-
-        self.show()
 
     def change_device(self):
         try:
