@@ -46,17 +46,18 @@ is_gui = not any([args.channel, args.device, args.query, args.online])
 
 # main
 async def main(app, bot, stream, msg):
-    try:    
-        token = args.token
-        if token is None:
-            token = open('token.txt', 'r').read()
-
+    try:
         # query devices
         if args.query:
             for device, index in sound.query_devices().items():
                 print(index, device)
 
             return
+
+        # check for token
+        token = args.token
+        if token is None:
+            token = open('token.txt', 'r').read()
 
         # query servers and channels
         if args.online:
