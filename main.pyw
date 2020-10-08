@@ -60,10 +60,7 @@ async def main(app, bot, stream, msg):
 
         # query servers and channels
         if args.online:
-            if token is None:
-                print('No Token detected')
-            else:
-                await cli.query(bot, token)
+            await cli.query(bot, token)
 
             return
 
