@@ -132,14 +132,14 @@ class GUI(QMainWindow):
         # servers
         self.servers = QComboBox(self)
         self.servers.setItemDelegate(QStyledItemDelegate())
-        self.servers.addItem('None', None)
+        self.servers.setPlaceholderText('None')
         server_lb = QLabel('Servers     ')
         server_lb.setObjectName('label')
 
         # channels
         self.channels = QComboBox(self)
         self.channels.setItemDelegate(QStyledItemDelegate())
-        self.channels.addItem('None', None)
+        self.channels.setPlaceholderText('None')
         channel_lb = QLabel('Channels  ')
         channel_lb.setObjectName('label')
 
@@ -245,13 +245,15 @@ class GUI(QMainWindow):
             selection = self.devices.currentData()
             self.mute.setText('Mute')
 
-            if selection is not None:
-                if self.voice is not None:
-                    self.voice.stop()
-                    self.stream.change_device(selection)
+            if self.voice is not None:
+                self.voice.stop()
+                self.stream.change_device(selection)
+                
+                if self.voice.is_connected():
                     self.voice.play(discord.PCMAudio(self.stream))
-                else:
-                    self.stream.change_device(selection)
+
+            else:
+                self.stream.change_device(selection)
 
         except Exception:
             logging.exception('Error on change_device')
@@ -261,22 +263,12 @@ class GUI(QMainWindow):
             selection = self.servers.currentData()
             self.channels.clear()
             self.channels.addItem('None', None)
-            self.mute.setText('Mute')
 
-            if selection is not None:
-                self.channels.clear()
-                self.channels.addItem('None', None)
-
-                for channel in selection.channels:
-                    if isinstance(channel, discord.VoiceChannel):
-                        self.channels.addItem(channel.name, channel)
+            for channel in selection.channels:
+                if isinstance(channel, discord.VoiceChannel):
+                    self.channels.addItem(channel.name, channel)
 
             self.resize_combobox(self.channels)
-
-            if self.voice is not None:
-                self.voice.stop()
-                await self.voice.disconnect()
-                self.voice = None
 
         except Exception:
             logging.exception('Error on change_server')
@@ -285,10 +277,9 @@ class GUI(QMainWindow):
         try:
             selection = self.channels.currentData()
             self.mute.setText('Mute')
+            self.disable_ui()
 
             if selection is not None:
-                self.disable_ui()
-
                 not_connected = (
                     self.voice is None or
                     self.voice is not None and
@@ -310,9 +301,7 @@ class GUI(QMainWindow):
 
             else:
                 if self.voice is not None:
-                    self.voice.stop()
                     await self.voice.disconnect()
-                    self.voice = None
 
         except Exception:
             logging.exception('Error on change_channel')
