@@ -25,7 +25,7 @@ In some cases PortAudio and xcb libraries may be missing on linux. On Ubuntu the
 ## CLI
 Running `main.pyw` / ``dap.exe`` without any arguments will start the graphical interface. Alternatively, discord-audio-pipe can be run from the command line and contains some tools to query system audio devices and accessible channels.
 ```
-usage: main.pyw [-h] [-c CHANNEL] [-d DEVICE] [-t TOKEN] [-q] [-o]
+usage: main.pyw [-h] [-t TOKEN] [-v] [-c CHANNEL] [-d DEVICE] [-D] [-C]
 
 Discord Audio Pipe
 
@@ -33,6 +33,7 @@ optional arguments:
   -h, --help            show this help message and exit
   -t TOKEN, --token TOKEN
                         The token for the bot
+  -v, --verbose         Enable verbose logging
 
 Command Line Mode:
   -c CHANNEL, --channel CHANNEL
@@ -41,6 +42,6 @@ Command Line Mode:
                         The device to listen from as an index
 
 Queries:
-  -q, --query           Query compatible audio devices
-  -o, --online          Query accessible servers and channels, requires token
+  -D, --devices         Query compatible audio devices
+  -C, --channels        Query servers and channels (requires token)
 ```
