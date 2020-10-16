@@ -49,9 +49,15 @@ base_logger.addHandler(error_handler)
 
 # verbose logs
 if args.verbose:
-    debug_formatter = logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s')
+    debug_formatter = logging.Formatter(
+        fmt='%(asctime)s:%(levelname)s:%(name)s: %(message)s'
+    )
 
-    debug_handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+    debug_handler = logging.FileHandler(
+        filename='discord.log',
+        encoding='utf-8',
+        mode='w'
+    )
     debug_handler.setFormatter(debug_formatter)
 
     debug_logger = logging.getLogger('discord')
@@ -101,7 +107,7 @@ async def main(app, bot, stream, msg):
         if is_gui:
             msg.setWindowTitle('Token Error')
             msg.setText('No Token Provided')
-            msg.exec();
+            msg.exec()
 
         else:
             print('No Token Provided')
@@ -110,7 +116,7 @@ async def main(app, bot, stream, msg):
         if is_gui:
             msg.setWindowTitle('Login Error')
             msg.setText('Login Failed')
-            msg.exec();        
+            msg.exec()
 
         else:
             print('Login Failed')
