@@ -4,3 +4,4 @@ token.txt
 *.log
 *.dll
 main.py
+build/main

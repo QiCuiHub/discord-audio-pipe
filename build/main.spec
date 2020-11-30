@@ -1,13 +1,21 @@
 # -*- mode: python ; coding: utf-8 -*-
+import sys
 
 block_cipher = None
 
+DATAPATH = os.path.abspath(os.path.join(SPECPATH, '..'))
+site_packages = next(p for p in sys.path if 'site-packages' in p)
+
+print('site-packages dir: ', site_packages)
+
 a = Analysis(
-    ['main.pyw'],
-    pathex=['.'],
+    ['../main.pyw'],
+    pathex=['..'],
     binaries=[],
     datas=[
-        ('./assets', './assets') 
+        (os.path.join(DATAPATH, 'assets'), './assets'),
+        (os.path.join(site_packages, 'discord/bin/libopus-0.x64.dll'), './discord/bin/'),
+        (os.path.join(site_packages, 'portaudio.dll'), './'),
     ],
     hiddenimports=['PyQt5', 'discord', 'sounddevice'],
     hookspath=[],
@@ -97,5 +105,5 @@ exe = EXE(
     ],
     runtime_tmpdir=None,
     console=False,
-    icon='./assets/favicon.ico'
+    icon=os.path.join(DATAPATH, 'assets/favicon.ico')
 )

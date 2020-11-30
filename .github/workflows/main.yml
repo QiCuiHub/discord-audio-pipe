@@ -15,21 +15,16 @@ jobs:
 
     - name: Install python dependencies
       run: |
-        c:\hostedtoolcache\windows\python\3.6.8\x64\python.exe -m pip install --upgrade pip
+        c:\hostedtoolcache\windows\python\3.7.9\x64\python.exe -m pip install --upgrade pip
         git clone https://github.com/Rapptz/discord.py
         cd discord.py
         pip3 install .[voice]
-        pip3 install ./build/sounddevice-0.4.1-cp39-cp39-win_amd64.whl
+        pip3 install ../build/sounddevice-0.4.1-cp37-cp37m-win_amd64.whl
         pip3 install PyQt5
         pip3 install pyinstaller
 
-    - name: Download libraries
-      shell: pwsh
-      run: |
-        Invoke-WebRequest https://github.com/Rapptz/discord.py/raw/master/discord/bin/libopus-0.x64.dll -OutFile ./libopus-0.x64.dll
- 
     - name: Compile to exe
-      run: pyinstaller --name dap --onefile main.spec
+      run: pyinstaller --name dap --onefile ./build/main.spec
 
     - name: Release
       shell: pwsh
