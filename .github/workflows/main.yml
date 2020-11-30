@@ -19,7 +19,7 @@ jobs:
         git clone https://github.com/Rapptz/discord.py
         cd discord.py
         pip3 install .[voice]
-        pip3 install sounddevice
+        pip3 install ./build/sounddevice-0.4.1-cp39-cp39-win_amd64.whl
         pip3 install PyQt5
         pip3 install pyinstaller
 
@@ -27,7 +27,6 @@ jobs:
       shell: pwsh
       run: |
         Invoke-WebRequest https://github.com/Rapptz/discord.py/raw/master/discord/bin/libopus-0.x64.dll -OutFile ./libopus-0.x64.dll
-        Invoke-WebRequest https://github.com/spatialaudio/portaudio-binaries/raw/master/libportaudio64bit.dll -OutFile ./libportaudio64bit.dll
  
     - name: Compile to exe
       run: pyinstaller --name dap --onefile main.spec

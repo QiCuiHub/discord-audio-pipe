@@ -7,7 +7,6 @@ a = Analysis(
     pathex=['.'],
     binaries=[],
     datas=[
-        ('./libopus-0.x64.dll', './discord/bin/'), 
         ('./assets', './assets') 
     ],
     hiddenimports=['PyQt5', 'discord', 'sounddevice'],
