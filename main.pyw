@@ -1,10 +1,24 @@
+import logging
+
+# error logging
+error_formatter = logging.Formatter(
+    fmt='%(asctime)s %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+
+error_handler = logging.FileHandler('DAP_errors.log', delay=True)
+error_handler.setLevel(logging.ERROR)
+error_handler.setFormatter(error_formatter)
+
+base_logger = logging.getLogger()
+base_logger.addHandler(error_handler)
+
 import sys
 import gui
 import cli
 import sound
 import asyncio
 import discord
-import logging
 import argparse
 from PyQt5.QtWidgets import QApplication, QMessageBox
 
@@ -33,19 +47,6 @@ query.add_argument('-C', '--channels', dest='online', action='store_true',
 
 args = parser.parse_args()
 is_gui = not any([args.channel, args.device, args.query, args.online])
-
-# error logging
-error_formatter = logging.Formatter(
-    fmt='%(asctime)s %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
-)
-
-error_handler = logging.FileHandler('DAP_errors.log', delay=True)
-error_handler.setLevel(logging.ERROR)
-error_handler.setFormatter(error_formatter)
-
-base_logger = logging.getLogger()
-base_logger.addHandler(error_handler)
 
 # verbose logs
 if args.verbose:
@@ -114,12 +115,12 @@ async def main(app, bot, stream, msg):
 
     except discord.errors.LoginFailure:
         if is_gui:
-            msg.setWindowTitle('Login Error')
-            msg.setText('Login Failed')
+            msg.setWindowTitle('Login Failed')
+            msg.setText('Please check if the token is correct')
             msg.exec()
 
         else:
-            print('Login Failed')
+            print('Login Failed: Please check if the token is correct')
 
     except Exception:
         logging.exception('Error on main')

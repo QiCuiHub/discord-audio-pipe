@@ -8,7 +8,6 @@ a = Analysis(
     binaries=[],
     datas=[
         ('./libopus-0.x64.dll', './discord/bin/'), 
-        ('./libportaudio64bit.dll', './_sounddevice_data/portaudio-binaries/'),
         ('./assets', './assets') 
     ],
     hiddenimports=['PyQt5', 'discord', 'sounddevice'],
