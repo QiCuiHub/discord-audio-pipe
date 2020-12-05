@@ -16,12 +16,7 @@ jobs:
     - name: Install python dependencies
       run: |
         c:\hostedtoolcache\windows\python\3.7.9\x64\python.exe -m pip install --upgrade pip
-        git clone https://github.com/Rapptz/discord.py
-        cd discord.py
-        pip3 install .[voice]
-        pip3 install ../build/sounddevice-0.4.1-cp37-cp37m-win_amd64.whl
-        pip3 install PyQt5
-        pip3 install pyinstaller
+        pip3 install -r requirements.txt
 
     - name: Compile to exe
       run: pyinstaller --name dap --onefile ./build/main.spec

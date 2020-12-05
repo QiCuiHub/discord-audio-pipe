@@ -10,12 +10,8 @@ You can download the latest release [**here**](https://github.com/QiCuiHub/disco
 2. To link the program to your bot, create a file ``token.txt`` in the same directory as ``main.pyw`` / ``dap.exe`` and save the bot token inside
 
 ## Dependencies
-Python 3.5+
-```
-    $ pip3 install discord.py[voice]
-    $ pip3 install sounddevice
-    $ pip3 install PyQt5
-```
+Requires Python 3.5+. Install dependencies by running ``pip3 install -r requirements.txt``
+
 In some cases PortAudio and xcb libraries may be missing on linux. On Ubuntu they can be installed with
 ```
     $ sudo apt-get install libportaudio2
