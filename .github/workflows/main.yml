@@ -16,7 +16,8 @@ jobs:
     - name: Install python dependencies
       run: |
         c:\hostedtoolcache\windows\python\3.7.9\x64\python.exe -m pip install --upgrade pip
-        pip3 install -r requirements.txt
+        pip3 install pyinstaller
+        pip3 install -r build/requirements.txt
 
     - name: Compile to exe
       run: pyinstaller --name dap --onefile ./build/main.spec
