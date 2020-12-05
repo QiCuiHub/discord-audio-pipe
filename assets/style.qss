@@ -1,0 +1,99 @@
+QWidget {
+    background-color: #303339;
+    font: 12pt "Roboto";
+    color: white;
+}
+
+QFrame#titlebar {
+    background-color: #202225;
+}
+
+QFrame#titlebar > * {
+    border: none;
+    font: 10pt "Roboto";
+    background-color: #202225;
+    color: #72767D;
+}
+
+QFrame#titlebar QLabel {
+    padding: 5px;
+}
+
+QFrame#titlebar QPushButton {
+    min-height: 25px;
+    min-width: 40px;
+}
+
+QPushButton#close::hover {
+    background-color: #F04747;
+}
+
+QPushButton#minimize::hover {
+    background-color: #282B2E;
+}
+
+QComboBox {
+    border: solid #282A2F;
+    border-width: 1px;
+    border-radius: 3px;
+    background-color: #303339;
+    min-height: 30px;
+}
+
+QComboBox::hover {
+    border-color: black;
+}
+
+QComboBox::drop-down {
+    border: none;
+}
+
+QComboBox::down-arrow {
+    image: url(./assets/arrow-drop-down-line.svg);
+}
+
+QAbstractItemView {
+    border: solid black;
+    border-radius: 3px;
+    border-width: 1px;
+    outline: none;
+}
+
+QAbstractItemView::item {
+    min-height: 30px;
+}
+
+QAbstractItemView::item::selected {
+    background-color: #26272B;
+}
+
+QAbstractItemView::item::hover {
+    background-color: #2A2C30;
+}
+
+QPushButton#mute {
+    border-radius: 2px;
+    background-color: #7289DA;
+    color: white;
+    min-height: 30px;
+    min-width: 80px;
+    max-width: 80px;
+}
+
+QPushButton#mute::hover {
+    background-color: #677BC4;
+}
+
+QPushButton#mute::pressed {
+    background-color: #5B6EAE;
+}
+
+QLabel#label {
+    font: 11pt "Roboto";
+    color: #8E9297;
+}
+
+QSvgWidget {
+    max-width: 15px;
+    max-height: 15px;
+}

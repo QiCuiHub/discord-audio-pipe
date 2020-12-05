@@ -7,25 +7,27 @@ sd.default.dtype = 'int16'
 sd.default.latency = 'low'
 sd.default.samplerate = 48000
 
+
 class PCMStream:
     def __init__(self):
         self.stream = None
-        
+
     def read(self, num_bytes):
         # frame is 4 bytes
         frames = int(num_bytes / 4)
         data = self.stream.read(frames)[0]
 
         # convert to pcm format
-        return data.tobytes()
+        return bytes(data)
 
     def change_device(self, num):
         if self.stream is not None:
             self.stream.stop()
             self.stream.close()
 
-        self.stream = sd.InputStream(device=num)
+        self.stream = sd.RawInputStream(device=num)
         self.stream.start()
+
 
 class DeviceNotFoundError(Exception):
     def __init__(self):
@@ -34,13 +36,20 @@ class DeviceNotFoundError(Exception):
         super().__init__('No Devices Found')
 
     def __str__(self):
-        return f'Devices \n{self.devices} \n Host APIs \n{pformat(self.host_apis)}'
+        return (
+            f'Devices \n'
+            f'{self.devices} \n '
+            f'Host APIs \n'
+            f'{pformat(self.host_apis)}'
+        )
+
 
 def query_devices():
     options = {
-        device.get('name') : index
+        device.get('name'): index
         for index, device in enumerate(sd.query_devices())
-        if device.get('max_input_channels') > 0 and device.get('hostapi') == DEFAULT
+        if (device.get('max_input_channels') > 0 and
+            device.get('hostapi') == DEFAULT)
     }
 
     if not options:

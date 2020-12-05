@@ -1,188 +1,323 @@
+import os
+import sys
 import sound
-import discord
 import asyncio
 import logging
-import tkinter as tk
+import discord
+from PyQt5.QtSvg import QSvgWidget
+from PyQt5.QtGui import (
+    QFontDatabase,
+    QFontMetrics,
+    QIcon
+)
+from PyQt5.QtCore import (
+    Qt,
+    QCoreApplication,
+    QEventLoop,
+    QDir
+)
+from PyQt5.QtWidgets import (
+    QMainWindow,
+    QPushButton,
+    QWidget,
+    QFrame,
+    QGridLayout,
+    QComboBox,
+    QLabel,
+    QHBoxLayout,
+    QStyledItemDelegate
+)
 
-class GUI():
-    def __init__(self, bot, stream):
-        self.root = tk.Tk()
-        self.root.title('Discord Audio Pipe')
+if getattr(sys, 'frozen', False):
+    bundle_dir = sys._MEIPASS
+else:
+    bundle_dir = os.path.dirname(os.path.abspath(__file__))
 
-        self.bot = bot
-        self.voice = None
-        self.stream = stream
 
-        self.cred = tk.Label(self.root, text='Connecting...', fg='black')
-        self.cred.grid(row=0, column=0, columnspan=2, sticky='W')
-        
-        tk.Label(self.root, text='Device', fg='black').grid(row=1, column=0)
-        tk.Label(self.root, text='Server', fg='black').grid(row=1, column=1)
-        tk.Label(self.root, text='Channel', fg='black').grid(row=1, column=2)
+class TitleBar(QFrame):
+    def __init__(self, parent):
+        # title bar
+        super(TitleBar, self).__init__()
+        self.setObjectName('titlebar')
 
-        device_options = sound.query_devices()
-        self.dv = tk.StringVar(self.root)
-        self.dv.trace('w', lambda *args: self.change_device(device_options, self.dv))
-        self.dv.set(device_options.get(0))
-        self.device = tk.OptionMenu(self.root, self.dv, *device_options)
-        self.device.grid(row=2, column=0)
+        # discord
+        self.parent = parent
+        self.bot = parent.bot
 
-        self.sv = tk.StringVar(self.root)
-        self.sv.trace('w', lambda *args: asyncio.ensure_future(self.change_server()))
-        self.sv.set('None')
-        self.server = tk.OptionMenu(self.root, self.sv, 'None')
-        self.server.grid(row=2, column=1)
-        self.server_map = {}
+        # layout
+        layout = QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(layout)
 
-        self.cv = tk.StringVar(self.root)
-        self.cv.trace("w", lambda *args: asyncio.ensure_future(self.change_channel()))
-        self.cv.set('None')
-        self.channel = tk.OptionMenu(self.root, self.cv, 'None')
-        self.channel.grid(row=2, column=2)
-        self.channel_map = {}
+        # window title
+        title = QLabel("Discord Audio Pipe")
 
-        self.mv = tk.StringVar(self.root)
-        self.mv.set('Mute')
-        self.mute = tk.Button(self.root, textvariable=self.mv, command=self.toggle_mute)
-        self.mute.grid(row=2, column=3, padx=5)
-        
-        self.root.protocol('WM_DELETE_WINDOW', lambda: asyncio.ensure_future(self.exit()))
+        # minimize
+        minimize_button = QPushButton('—')
+        minimize_button.setObjectName('minimize')
+        layout.addWidget(minimize_button)
 
-    def disable_ui(self):
-        self.device.configure(state="disabled")
-        self.server.configure(state="disabled")
-        self.channel.configure(state="disabled")
-        self.mute.configure(state="disabled")
-        
-    def enable_ui(self):
-        self.device.configure(state="normal")
-        self.server.configure(state="normal")
-        self.channel.configure(state="normal")
-        self.mute.configure(state="normal")
+        # close
+        close_button = QPushButton('✕')
+        close_button.setObjectName('close')
+        layout.addWidget(close_button)
 
-    async def ready(self):
-        await self.bot.wait_until_ready()
-        
-        self.set_cred(self.bot.user.name)
-        self.set_servers([guild for guild in self.bot.guilds])
+        # add widgets
+        layout.addWidget(title)
+        layout.addStretch()
+        layout.addWidget(minimize_button)
+        layout.addWidget(close_button)
 
-    async def exit(self):
-        # workaround for logout bug 
-        self.bot._closed = True
+        # events
+        minimize_button.clicked.connect(self.minimize)
+        close_button.clicked.connect(
+            lambda: asyncio.ensure_future(self.close())
+        )
 
+    async def close(self):
+        # workaround for logout bug
         for voice in self.bot.voice_clients:
             try:
                 await voice.disconnect()
             except Exception:
                 pass
 
+        self.bot._closed = True
         await self.bot.ws.close()
-        self.root.destroy()
+        self.parent.close()
 
-    def change_device(self, options, dv):
+    def minimize(self):
+        self.parent.showMinimized()
+
+
+class GUI(QMainWindow):
+
+    def __init__(self, app, bot, stream):
+        # app
+        super(GUI, self).__init__()
+        QDir.setCurrent(bundle_dir)
+        self.app = app
+
+        # window info
+        self.setWindowFlags(self.windowFlags() | Qt.FramelessWindowHint)
+        window_icon = QIcon('./assets/favicon.ico')
+        self.setWindowTitle('Discord Audio Pipe')
+        self.app.setWindowIcon(window_icon)
+        self.position = None
+
+        # discord
+        self.bot = bot
+        self.voice = None
+        self.stream = stream
+
+        # layout
+        central = QWidget()
+        layout = QGridLayout()
+        central.setLayout(layout)
+
+        # loading
+        self.info = QLabel('Connecting...')
+        self.loading = QSvgWidget('./assets/loading.svg')
+
+        # devices
+        self.devices = QComboBox(self)
+        self.devices.setItemDelegate(QStyledItemDelegate())
+        self.devices.setPlaceholderText('None')
+        device_lb = QLabel('Devices')
+        device_lb.setObjectName('label')
+
+        for device, idx in sound.query_devices().items():
+            self.devices.addItem(device + '   ', idx)
+
+        # servers
+        self.servers = QComboBox(self)
+        self.servers.setItemDelegate(QStyledItemDelegate())
+        self.servers.setPlaceholderText('None')
+        server_lb = QLabel('Servers     ')
+        server_lb.setObjectName('label')
+
+        # channels
+        self.channels = QComboBox(self)
+        self.channels.setItemDelegate(QStyledItemDelegate())
+        self.channels.setPlaceholderText('None')
+        channel_lb = QLabel('Channels  ')
+        channel_lb.setObjectName('label')
+
+        # mute
+        self.mute = QPushButton('Mute', self)
+        self.mute.setObjectName('mute')
+
+        # add widgets
+        layout.addWidget(self.info,     0, 0, 1, 3)
+        layout.addWidget(self.loading,  0, 3, alignment=Qt.AlignHCenter)
+        layout.addWidget(device_lb,     1, 0)
+        layout.addWidget(self.devices,  2, 0)
+        layout.addWidget(server_lb,     1, 1)
+        layout.addWidget(self.servers,  2, 1)
+        layout.addWidget(channel_lb,    1, 2)
+        layout.addWidget(self.channels, 2, 2)
+        layout.addWidget(self.mute,     2, 3)
+
+        # events
+        self.devices.currentTextChanged.connect(self.change_device)
+        self.servers.currentTextChanged.connect(
+            lambda: asyncio.ensure_future(self.change_server())
+        )
+        self.channels.currentTextChanged.connect(
+            lambda: asyncio.ensure_future(self.change_channel())
+        )
+        self.mute.clicked.connect(self.toggle_mute)
+
+        # build window
+        titlebar = TitleBar(self)
+        self.setMenuWidget(titlebar)
+        self.setCentralWidget(central)
+        self.disable_ui()
+        
+        # load styles
+        QFontDatabase.addApplicationFont('./assets/Roboto-Black.ttf')
+        with open('./assets/style.qss', 'r') as qss:
+            self.app.setStyleSheet(qss.read())
+
+        # show window
+        self.show()
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self.position = event.pos()
+            event.accept()
+
+    def mouseMoveEvent(self, event):
+        if self.position is not None and event.buttons() == Qt.LeftButton:
+            self.move(self.pos() + event.pos() - self.position)
+            event.accept()
+
+    def mouseReleaseEvent(self, event):
+        self.position = None
+        event.accept()
+
+    def disable_ui(self):
+        self.loading.setVisible(True)
+        self.devices.setEnabled(False)
+        self.servers.setEnabled(False)
+        self.channels.setEnabled(False)
+        self.mute.setEnabled(False)
+
+    def enable_ui(self):
+        self.loading.setVisible(False)
+        self.devices.setEnabled(True)
+        self.servers.setEnabled(True)
+        self.channels.setEnabled(True)
+        self.mute.setEnabled(True)
+
+    async def run_Qt(self, interval=0.01):
+        while True:
+            QCoreApplication.processEvents(
+                QEventLoop.AllEvents,
+                interval * 1000
+            )
+            await asyncio.sleep(interval)
+
+    def resize_combobox(self, combobox):
+        font = combobox.property('font')
+        metrics = QFontMetrics(font)
+        min_width = 0
+
+        for i in range(combobox.count()):
+            size = metrics.horizontalAdvance(combobox.itemText(i))
+            if size > min_width:
+                min_width = size
+
+        combobox.setMinimumWidth(min_width + 30)
+
+    async def ready(self):
+        await self.bot.wait_until_ready()
+        self.info.setText(f'Logged in as: {self.bot.user.name}')
+
+        for guild in self.bot.guilds:
+            self.servers.addItem(guild.name, guild)
+
+        self.resize_combobox(self.servers)
+        self.enable_ui()
+
+    def change_device(self):
         try:
-            if dv.get() != 'None':
-                if self.voice is not None:
-                    self.voice.stop()
-                    self.stream.change_device(options.get(dv.get()))
+            selection = self.devices.currentData()
+            self.mute.setText('Mute')
+
+            if self.voice is not None:
+                self.voice.stop()
+                self.stream.change_device(selection)
+                
+                if self.voice.is_connected():
                     self.voice.play(discord.PCMAudio(self.stream))
-                else:
-                    self.stream.change_device(options.get(dv.get()))
-                    
+
+            else:
+                self.stream.change_device(selection)
+
         except Exception:
             logging.exception('Error on change_device')
 
-    async def run_tk(self, interval=0.05):
-        try:
-            while True:
-                self.root.update()
-                await asyncio.sleep(interval)
-        except tk.TclError as e:
-            return
-
     async def change_server(self):
         try:
-            s_name = self.sv.get()
+            selection = self.servers.currentData()
+            self.channels.clear()
+            self.channels.addItem('None', None)
 
-            if s_name != 'None':
-                guild = discord.utils.find(lambda s: s.id == self.server_map[s_name].id, self.bot.guilds)
-                channel_names = [c for c in guild.channels if isinstance(c, discord.VoiceChannel)]
-                self.set_channels(channel_names)    
-            else:
-                self.set_channels([])
+            for channel in selection.channels:
+                if isinstance(channel, discord.VoiceChannel):
+                    self.channels.addItem(channel.name, channel)
 
-            if self.voice is not None:
-                await self.voice.disconnect()
-                self.voice = None
-                
+            self.resize_combobox(self.channels)
+
         except Exception:
             logging.exception('Error on change_server')
 
     async def change_channel(self):
         try:
-            s_name = self.sv.get()
-            c_name = self.cv.get()
-        
-            if c_name != 'None':
-                guild = discord.utils.find(lambda s: s.id == self.server_map[s_name].id, self.bot.guilds)
-                channel = discord.utils.find(lambda c: c.id == self.channel_map[c_name].id, guild.channels)
-                
-                self.disable_ui()
-                
-                if self.voice is None or self.voice is not None and not self.voice.is_connected():
-                    self.voice = await channel.connect(timeout=10)
-                else:
-                    await self.voice.move_to(channel)
+            selection = self.channels.currentData()
+            self.mute.setText('Mute')
+            self.disable_ui()
 
-                if self.dv.get() != 'None' and not self.voice.is_playing():
+            if selection is not None:
+                not_connected = (
+                    self.voice is None or
+                    self.voice is not None and
+                    not self.voice.is_connected()
+                )
+
+                if not_connected:
+                    self.voice = await selection.connect(timeout=10)
+                else:
+                    await self.voice.move_to(selection)
+
+                not_playing = (
+                    self.devices.currentData() is not None and
+                    not self.voice.is_playing()
+                )
+
+                if not_playing:
                     self.voice.play(discord.PCMAudio(self.stream))
 
             else:
                 if self.voice is not None:
                     await self.voice.disconnect()
-                    self.voice = None
 
         except Exception:
             logging.exception('Error on change_channel')
-            
+
         finally:
             self.enable_ui()
- 
-    def deEmojify(self, inputString):
-        return ''.join(char for char in inputString if char <= '\uffff')
- 
-    def set_cred(self, username):
-        self.cred.config(text='Logged in as: ' + self.deEmojify(username))
 
-    def set_servers(self, servers):
-        menu = self.server['menu']
-        
-        for idx, server in enumerate(servers):
-            escaped = str(idx) + '. ' + self.deEmojify(server.name)
-            menu.add_command(label=escaped, command=lambda value=escaped: self.sv.set(value))
-            self.server_map[escaped] = server
-        
-    def set_channels(self, channels):
-        menu = self.channel['menu']
-        menu.delete(0, 'end')
-        menu.add_command(label='None', command=lambda value='None': self.cv.set(value))    
-        self.cv.set('None')
-        self.channel_map.clear()
-
-        for idx, channel in enumerate(channels):
-            escaped = str(idx) + '. ' + self.deEmojify(channel.name)
-            menu.add_command(label=escaped, command=lambda value=escaped: self.cv.set(value))
-            self.channel_map[escaped] = channel
- 
     def toggle_mute(self):
         try:
             if self.voice is not None:
                 if self.voice.is_playing():
                     self.voice.pause()
-                    self.mv.set('Resume')
+                    self.mute.setText('Resume')
                 else:
                     self.voice.resume()
-                    self.mv.set('Mute')
-                    
+                    self.mute.setText('Mute')
+
         except Exception:
             logging.exception('Error on toggle_mute')

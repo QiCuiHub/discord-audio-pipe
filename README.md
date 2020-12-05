@@ -1,6 +1,5 @@
-
 # discord-audio-pipe
-Barebones program to send stereo computer audio (microphone, stereo mix, virtual audio cable, etc) into a discord bot.
+Simple program to send stereo audio (microphone, stereo mix, virtual audio cable, etc) into a discord bot.
 
 You can download the latest release [**here**](https://github.com/QiCuiHub/discord-audio-pipe/releases)
 - If you are using the executable, run ``dap.exe``  
@@ -11,21 +10,18 @@ You can download the latest release [**here**](https://github.com/QiCuiHub/disco
 2. To link the program to your bot, create a file ``token.txt`` in the same directory as ``main.pyw`` / ``dap.exe`` and save the bot token inside
 
 ## Dependencies
-Python 3.5+
-```
-    $ pip3 install discord.py[voice]
-    $ pip3 install sounddevice
-    $ pip3 install numpy
-```
-In some cases PortAudio and Tkinter may be missing, on Ubuntu they can be installed with
+Requires Python 3.5+. Install dependencies by running ``pip3 install -r requirements.txt``
+
+In some cases PortAudio and xcb libraries may be missing on linux. On Ubuntu they can be installed with
 ```
     $ sudo apt-get install libportaudio2
-    $ sudo apt-get install python3-tk
+    $ sudo apt-get install libxcb-xinerama0
 ```
+
 ## CLI
-Running `main.pyw` / ``dap.exe`` without any arguments will start the graphical interface. Alternatively, discord-audio-pipe can  be run from the command line and contains some tools to query system audio devices and accessible channels.
+Running `main.pyw` / ``dap.exe`` without any arguments will start the graphical interface. Alternatively, discord-audio-pipe can be run from the command line and contains some tools to query system audio devices and accessible channels.
 ```
-usage: main.pyw [-h] [-c CHANNEL] [-d DEVICE] [-t TOKEN] [-q] [-o]
+usage: main.pyw [-h] [-t TOKEN] [-v] [-c CHANNEL] [-d DEVICE] [-D] [-C]
 
 Discord Audio Pipe
 
@@ -33,6 +29,7 @@ optional arguments:
   -h, --help            show this help message and exit
   -t TOKEN, --token TOKEN
                         The token for the bot
+  -v, --verbose         Enable verbose logging
 
 Command Line Mode:
   -c CHANNEL, --channel CHANNEL
@@ -41,6 +38,6 @@ Command Line Mode:
                         The device to listen from as an index
 
 Queries:
-  -q, --query           Query compatible audio devices
-  -o, --online          Query accessible servers and channels, requires token
+  -D, --devices         Query compatible audio devices
+  -C, --channels        Query servers and channels (requires token)
 ```
