@@ -2,7 +2,7 @@ import sys
 import discord
 import logging
 
-async def connect(bot, stream, device_id, channel_id, token):
+async def connect(bot, stream, device_id, channel_id):
     try:
         print('Connecting...')
         await bot.wait_until_ready()

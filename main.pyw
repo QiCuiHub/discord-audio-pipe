@@ -98,8 +98,7 @@ async def main(app, bot, stream, msg):
                 bot,
                 stream,
                 args.device,
-                args.channel,
-                token
+                args.channel
             ))
 
         await bot.start(token)
