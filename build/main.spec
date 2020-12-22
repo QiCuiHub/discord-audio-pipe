@@ -6,8 +6,6 @@ block_cipher = None
 DATAPATH = os.path.abspath(os.path.join(SPECPATH, '..'))
 site_packages = next(p for p in sys.path if 'site-packages' in p)
 
-print('site-packages dir: ', site_packages)
-
 a = Analysis(
     ['../main.pyw'],
     pathex=['..'],
@@ -88,7 +86,6 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='dap',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
