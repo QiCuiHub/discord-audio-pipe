@@ -5,17 +5,8 @@ import asyncio
 import logging
 import discord
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtGui import (
-    QFontDatabase,
-    QFontMetrics,
-    QIcon
-)
-from PyQt5.QtCore import (
-    Qt,
-    QCoreApplication,
-    QEventLoop,
-    QDir
-)
+from PyQt5.QtGui import QFontDatabase, QFontMetrics, QIcon
+from PyQt5.QtCore import Qt, QCoreApplication, QEventLoop, QDir
 from PyQt5.QtWidgets import (
     QMainWindow,
     QPushButton,
@@ -25,10 +16,10 @@ from PyQt5.QtWidgets import (
     QComboBox,
     QLabel,
     QHBoxLayout,
-    QStyledItemDelegate
+    QStyledItemDelegate,
 )
 
-if getattr(sys, 'frozen', False):
+if getattr(sys, "frozen", False):
     bundle_dir = sys._MEIPASS
 else:
     bundle_dir = os.path.dirname(os.path.abspath(__file__))
@@ -38,7 +29,7 @@ class TitleBar(QFrame):
     def __init__(self, parent):
         # title bar
         super(TitleBar, self).__init__()
-        self.setObjectName('titlebar')
+        self.setObjectName("titlebar")
 
         # discord
         self.parent = parent
@@ -53,13 +44,13 @@ class TitleBar(QFrame):
         title = QLabel("Discord Audio Pipe")
 
         # minimize
-        minimize_button = QPushButton('—')
-        minimize_button.setObjectName('minimize')
+        minimize_button = QPushButton("—")
+        minimize_button.setObjectName("minimize")
         layout.addWidget(minimize_button)
 
         # close
-        close_button = QPushButton('✕')
-        close_button.setObjectName('close')
+        close_button = QPushButton("✕")
+        close_button.setObjectName("close")
         layout.addWidget(close_button)
 
         # add widgets
@@ -70,9 +61,7 @@ class TitleBar(QFrame):
 
         # events
         minimize_button.clicked.connect(self.minimize)
-        close_button.clicked.connect(
-            lambda: asyncio.ensure_future(self.close())
-        )
+        close_button.clicked.connect(lambda: asyncio.ensure_future(self.close()))
 
     async def close(self):
         # workaround for logout bug
@@ -91,7 +80,6 @@ class TitleBar(QFrame):
 
 
 class GUI(QMainWindow):
-
     def __init__(self, app, bot, stream):
         # app
         super(GUI, self).__init__()
@@ -100,8 +88,8 @@ class GUI(QMainWindow):
 
         # window info
         self.setWindowFlags(self.windowFlags() | Qt.FramelessWindowHint)
-        window_icon = QIcon('./assets/favicon.ico')
-        self.setWindowTitle('Discord Audio Pipe')
+        window_icon = QIcon("./assets/favicon.ico")
+        self.setWindowTitle("Discord Audio Pipe")
         self.app.setWindowIcon(window_icon)
         self.position = None
 
@@ -116,47 +104,47 @@ class GUI(QMainWindow):
         central.setLayout(layout)
 
         # loading
-        self.info = QLabel('Connecting...')
-        self.loading = QSvgWidget('./assets/loading.svg')
+        self.info = QLabel("Connecting...")
+        self.loading = QSvgWidget("./assets/loading.svg")
 
         # devices
         self.devices = QComboBox(self)
         self.devices.setItemDelegate(QStyledItemDelegate())
-        self.devices.setPlaceholderText('None')
-        device_lb = QLabel('Devices')
-        device_lb.setObjectName('label')
+        self.devices.setPlaceholderText("None")
+        device_lb = QLabel("Devices")
+        device_lb.setObjectName("label")
 
         for device, idx in sound.query_devices().items():
-            self.devices.addItem(device + '   ', idx)
+            self.devices.addItem(device + "   ", idx)
 
         # servers
         self.servers = QComboBox(self)
         self.servers.setItemDelegate(QStyledItemDelegate())
-        self.servers.setPlaceholderText('None')
-        server_lb = QLabel('Servers     ')
-        server_lb.setObjectName('label')
+        self.servers.setPlaceholderText("None")
+        server_lb = QLabel("Servers     ")
+        server_lb.setObjectName("label")
 
         # channels
         self.channels = QComboBox(self)
         self.channels.setItemDelegate(QStyledItemDelegate())
-        self.channels.setPlaceholderText('None')
-        channel_lb = QLabel('Channels  ')
-        channel_lb.setObjectName('label')
+        self.channels.setPlaceholderText("None")
+        channel_lb = QLabel("Channels  ")
+        channel_lb.setObjectName("label")
 
         # mute
-        self.mute = QPushButton('Mute', self)
-        self.mute.setObjectName('mute')
+        self.mute = QPushButton("Mute", self)
+        self.mute.setObjectName("mute")
 
         # add widgets
-        layout.addWidget(self.info,     0, 0, 1, 3)
-        layout.addWidget(self.loading,  0, 3, alignment=Qt.AlignHCenter)
-        layout.addWidget(device_lb,     1, 0)
-        layout.addWidget(self.devices,  2, 0)
-        layout.addWidget(server_lb,     1, 1)
-        layout.addWidget(self.servers,  2, 1)
-        layout.addWidget(channel_lb,    1, 2)
+        layout.addWidget(self.info, 0, 0, 1, 3)
+        layout.addWidget(self.loading, 0, 3, alignment=Qt.AlignHCenter)
+        layout.addWidget(device_lb, 1, 0)
+        layout.addWidget(self.devices, 2, 0)
+        layout.addWidget(server_lb, 1, 1)
+        layout.addWidget(self.servers, 2, 1)
+        layout.addWidget(channel_lb, 1, 2)
         layout.addWidget(self.channels, 2, 2)
-        layout.addWidget(self.mute,     2, 3)
+        layout.addWidget(self.mute, 2, 3)
 
         # events
         self.devices.currentTextChanged.connect(self.change_device)
@@ -173,10 +161,10 @@ class GUI(QMainWindow):
         self.setMenuWidget(titlebar)
         self.setCentralWidget(central)
         self.disable_ui()
-        
+
         # load styles
-        QFontDatabase.addApplicationFont('./assets/Roboto-Black.ttf')
-        with open('./assets/style.qss', 'r') as qss:
+        QFontDatabase.addApplicationFont("./assets/Roboto-Black.ttf")
+        with open("./assets/style.qss", "r") as qss:
             self.app.setStyleSheet(qss.read())
 
         # show window
@@ -212,14 +200,11 @@ class GUI(QMainWindow):
 
     async def run_Qt(self, interval=0.01):
         while True:
-            QCoreApplication.processEvents(
-                QEventLoop.AllEvents,
-                interval * 1000
-            )
+            QCoreApplication.processEvents(QEventLoop.AllEvents, interval * 1000)
             await asyncio.sleep(interval)
 
     def resize_combobox(self, combobox):
-        font = combobox.property('font')
+        font = combobox.property("font")
         metrics = QFontMetrics(font)
         min_width = 0
 
@@ -232,7 +217,7 @@ class GUI(QMainWindow):
 
     async def ready(self):
         await self.bot.wait_until_ready()
-        self.info.setText(f'Logged in as: {self.bot.user.name}')
+        self.info.setText(f"Logged in as: {self.bot.user.name}")
 
         for guild in self.bot.guilds:
             self.servers.addItem(guild.name, guild)
@@ -243,12 +228,12 @@ class GUI(QMainWindow):
     def change_device(self):
         try:
             selection = self.devices.currentData()
-            self.mute.setText('Mute')
+            self.mute.setText("Mute")
 
             if self.voice is not None:
                 self.voice.stop()
                 self.stream.change_device(selection)
-                
+
                 if self.voice.is_connected():
                     self.voice.play(discord.PCMAudio(self.stream))
 
@@ -256,13 +241,13 @@ class GUI(QMainWindow):
                 self.stream.change_device(selection)
 
         except Exception:
-            logging.exception('Error on change_device')
+            logging.exception("Error on change_device")
 
     async def change_server(self):
         try:
             selection = self.servers.currentData()
             self.channels.clear()
-            self.channels.addItem('None', None)
+            self.channels.addItem("None", None)
 
             for channel in selection.channels:
                 if isinstance(channel, discord.VoiceChannel):
@@ -271,19 +256,19 @@ class GUI(QMainWindow):
             self.resize_combobox(self.channels)
 
         except Exception:
-            logging.exception('Error on change_server')
+            logging.exception("Error on change_server")
 
     async def change_channel(self):
         try:
             selection = self.channels.currentData()
-            self.mute.setText('Mute')
+            self.mute.setText("Mute")
             self.disable_ui()
 
             if selection is not None:
                 not_connected = (
-                    self.voice is None or
-                    self.voice is not None and
-                    not self.voice.is_connected()
+                    self.voice is None
+                    or self.voice is not None
+                    and not self.voice.is_connected()
                 )
 
                 if not_connected:
@@ -292,8 +277,8 @@ class GUI(QMainWindow):
                     await self.voice.move_to(selection)
 
                 not_playing = (
-                    self.devices.currentData() is not None and
-                    not self.voice.is_playing()
+                    self.devices.currentData() is not None
+                    and not self.voice.is_playing()
                 )
 
                 if not_playing:
@@ -304,7 +289,7 @@ class GUI(QMainWindow):
                     await self.voice.disconnect()
 
         except Exception:
-            logging.exception('Error on change_channel')
+            logging.exception("Error on change_channel")
 
         finally:
             self.enable_ui()
@@ -314,10 +299,10 @@ class GUI(QMainWindow):
             if self.voice is not None:
                 if self.voice.is_playing():
                     self.voice.pause()
-                    self.mute.setText('Resume')
+                    self.mute.setText("Resume")
                 else:
                     self.voice.resume()
-                    self.mute.setText('Mute')
+                    self.mute.setText("Mute")
 
         except Exception:
-            logging.exception('Error on toggle_mute')
+            logging.exception("Error on toggle_mute")

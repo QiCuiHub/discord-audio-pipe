@@ -2,11 +2,12 @@ import sys
 import discord
 import logging
 
+
 async def connect(bot, stream, device_id, channel_id):
     try:
-        print('Connecting...')
+        print("Connecting...")
         await bot.wait_until_ready()
-        print(f'Logged in as {bot.user.name}')
+        print(f"Logged in as {bot.user.name}")
 
         channel = bot.get_channel(channel_id)
         stream.change_device(device_id)
@@ -14,11 +15,12 @@ async def connect(bot, stream, device_id, channel_id):
         voice = await channel.connect()
         voice.play(discord.PCMAudio(stream))
 
-        print(f'Playing audio in {channel.name}')
+        print(f"Playing audio in {channel.name}")
 
     except Exception:
-        logging.exception('Error on cli connect')
+        logging.exception("Error on cli connect")
         sys.exit(1)
+
 
 async def query(bot, token):
     await bot.login(token)
@@ -28,6 +30,6 @@ async def query(bot, token):
         channels = await guild.fetch_channels()
 
         for channel in channels:
-            print('\t', channel.id, channel.name)
+            print("\t", channel.id, channel.name)
 
     await bot.logout()

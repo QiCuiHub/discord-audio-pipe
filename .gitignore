@@ -5,3 +5,4 @@ token.txt
 *.dll
 main.py
 build/main
+.vscode
