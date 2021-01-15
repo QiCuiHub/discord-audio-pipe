@@ -13,13 +13,11 @@ base_logger = logging.getLogger()
 base_logger.addHandler(error_handler)
 
 import sys
-import gui
 import cli
 import sound
 import asyncio
 import discord
 import argparse
-from PyQt5.QtWidgets import QApplication, QMessageBox
 
 # commandline args
 parser = argparse.ArgumentParser(description="Discord Audio Pipe")
@@ -95,8 +93,16 @@ if args.verbose:
     debug_logger.setLevel(logging.DEBUG)
     debug_logger.addHandler(debug_handler)
 
+# don't import qt stuff if not using gui
+if is_gui:
+    import gui
+    from PyQt5.QtWidgets import QApplication, QMessageBox
+    app = QApplication(sys.argv)
+    msg = QMessageBox()
+    msg.setIcon(QMessageBox.Information)
+
 # main
-async def main(app, bot, stream, msg):
+async def main(bot, stream):
     try:
         # query devices
         if args.query:
@@ -151,17 +157,12 @@ async def main(app, bot, stream, msg):
 
 
 # run program
-app = QApplication(sys.argv)
 bot = discord.Client()
 stream = sound.PCMStream()
-
-msg = QMessageBox()
-msg.setIcon(QMessageBox.Information)
-
 loop = asyncio.get_event_loop()
 
 try:
-    loop.run_until_complete(main(app, bot, stream, msg))
+    loop.run_until_complete(main(bot, stream))
 except KeyboardInterrupt:
     print("Exiting...")
     loop.run_until_complete(bot.logout())
