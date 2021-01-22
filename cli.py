@@ -1,14 +1,16 @@
 import sys
+import sound
 import discord
 import logging
 
 
-async def connect(bot, stream, device_id, channel_id):
+async def connect(bot, device_id, channel_id):
     try:
         print("Connecting...")
         await bot.wait_until_ready()
         print(f"Logged in as {bot.user.name}")
 
+        stream = sound.PCMStream()
         channel = bot.get_channel(channel_id)
         stream.change_device(device_id)
 

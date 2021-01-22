@@ -102,7 +102,7 @@ if is_gui:
     msg.setIcon(QMessageBox.Information)
 
 # main
-async def main(bot, stream):
+async def main(bot):
     try:
         # query devices
         if args.query:
@@ -124,13 +124,13 @@ async def main(bot, stream):
 
         # GUI
         if is_gui:
-            bot_ui = gui.GUI(app, bot, stream)
+            bot_ui = gui.GUI(app, bot)
             asyncio.ensure_future(bot_ui.ready())
             asyncio.ensure_future(bot_ui.run_Qt())
 
         # CLI
         else:
-            asyncio.ensure_future(cli.connect(bot, stream, args.device, args.channel))
+            asyncio.ensure_future(cli.connect(bot, args.device, args.channel))
 
         await bot.start(token)
 
@@ -158,11 +158,10 @@ async def main(bot, stream):
 
 # run program
 bot = discord.Client()
-stream = sound.PCMStream()
 loop = asyncio.get_event_loop()
 
 try:
-    loop.run_until_complete(main(bot, stream))
+    loop.run_until_complete(main(bot))
 except KeyboardInterrupt:
     print("Exiting...")
     loop.run_until_complete(bot.logout())
