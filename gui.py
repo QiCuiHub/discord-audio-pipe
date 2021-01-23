@@ -31,7 +31,7 @@ class Dropdown(QComboBox):
 
     def __init__(self):
         super(Dropdown, self).__init__()
-        
+
         self.setItemDelegate(QStyledItemDelegate())
         self.setPlaceholderText("None")
         self.setView(QListView())
@@ -53,10 +53,10 @@ class Dropdown(QComboBox):
 class SVGButton(QPushButton):
     def __init__(self, text=None):
         super(SVGButton, self).__init__(text)
-        
+
         self.layout = QHBoxLayout()
         self.setLayout(self.layout)
-        
+
         self.svg = QSvgWidget("./assets/loading.svg", self)
         self.svg.setVisible(False)
 
@@ -68,7 +68,7 @@ class SVGButton(QPushButton):
         self.svg.setVisible(not enabled)
 
 
-class Connection():
+class Connection:
     def __init__(self, layer, parent):
         self.stream = sound.PCMStream()
         self.parent = parent
@@ -87,15 +87,17 @@ class Connection():
         self.mute.setObjectName("mute")
 
         # add widgets
-        parent.layout.addWidget(self.devices,  layer, 0)
-        parent.layout.addWidget(self.servers,  layer, 1)
+        parent.layout.addWidget(self.devices, layer, 0)
+        parent.layout.addWidget(self.servers, layer, 1)
         parent.layout.addWidget(self.channels, layer, 2)
-        parent.layout.addWidget(self.mute,     layer, 3)
+        parent.layout.addWidget(self.mute, layer, 3)
 
         # events
         self.devices.changed.connect(self.change_device)
         self.servers.changed.connect(
-            lambda deselected, selected: asyncio.ensure_future(self.change_server(deselected, selected))
+            lambda deselected, selected: asyncio.ensure_future(
+                self.change_server(deselected, selected)
+            )
         )
         self.channels.changed.connect(
             lambda: asyncio.ensure_future(self.change_channel())
@@ -296,10 +298,10 @@ class GUI(QMainWindow):
         self.info = QLabel("Connecting...")
         device_lb = QLabel("Devices")
         device_lb.setObjectName("label")
-        server_lb = QLabel('Servers     ')
-        server_lb.setObjectName('label')
-        channel_lb = QLabel('Channels  ')
-        channel_lb.setObjectName('label')
+        server_lb = QLabel("Servers     ")
+        server_lb.setObjectName("label")
+        channel_lb = QLabel("Channels  ")
+        channel_lb.setObjectName("label")
 
         # connections
         self.devices = sound.query_devices()
@@ -360,7 +362,7 @@ class GUI(QMainWindow):
 
     def add_connection(self):
         layer = len(self.connections) + 2
-    
+
         new_connection = Connection(layer, self)
         new_connection.set_servers(self.bot.guilds)
 

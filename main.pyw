@@ -97,6 +97,7 @@ if args.verbose:
 if is_gui:
     import gui
     from PyQt5.QtWidgets import QApplication, QMessageBox
+
     app = QApplication(sys.argv)
     msg = QMessageBox()
     msg.setIcon(QMessageBox.Information)
