@@ -1,16 +1,20 @@
 # discord-audio-pipe
+[![GitHub Workflow Status](https://github.com/QiCuiHub/discord-audio-pipe/workflows/CI/badge.svg)](https://github.com/QiCuiHub/discord-audio-pipe/actions?query=workflow%3ACI)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/QiCuiHub/discord-audio-pipe)](https://github.com/QiCuiHub/discord-audio-pipe/releases)
+[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/QiCuiHub/discord-audio-pipe.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/QiCuiHub/discord-audio-pipe/context:python)
+
 Simple program to send stereo audio (microphone, stereo mix, virtual audio cable, etc) into a discord bot.
 
 You can download the latest release [**here**](https://github.com/QiCuiHub/discord-audio-pipe/releases)
-- If you are using the executable, run ``dap.exe``  
-- If you are using the source code, install the dependencies and start the program using ``main.pyw``
+- If you are using the source code, install the dependencies and start the program using `main.pyw`
+- The `.exe` does not require python or dependencies
 
 ## Setting up a Bot account
 1. Follow the steps [**here**](https://discordpy.readthedocs.io/en/latest/discord.html) to setup and invite a discord bot
-2. To link the program to your bot, create a file ``token.txt`` in the same directory as ``main.pyw`` / ``dap.exe`` and save the bot token inside
+2. To link the program to your bot, create a file ``token.txt`` in the same directory as the `.exe` / `main.pyw` and save the bot token inside
 
 ## Dependencies
-Requires Python 3.5+. Install dependencies by running ``pip3 install -r requirements.txt``
+Requires Python 3.5+. Install dependencies by running `pip3 install -r requirements.txt`
 
 In some cases PortAudio and xcb libraries may be missing on linux. On Ubuntu they can be installed with
 ```
@@ -19,7 +23,7 @@ In some cases PortAudio and xcb libraries may be missing on linux. On Ubuntu the
 ```
 
 ## CLI
-Running `main.pyw` / ``dap.exe`` without any arguments will start the graphical interface. Alternatively, discord-audio-pipe can be run from the command line and contains some tools to query system audio devices and accessible channels.
+Running the `.exe` / `main.pyw` without any arguments will start the graphical interface. Alternatively, discord-audio-pipe can be run from the command line and contains some tools to query system audio devices and accessible channels.
 ```
 usage: main.pyw [-h] [-t TOKEN] [-v] [-c CHANNEL] [-d DEVICE] [-D] [-C]
 

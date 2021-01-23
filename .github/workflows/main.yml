@@ -13,6 +13,12 @@ jobs:
       with:
         fetch-depth: 1
 
+    - name: Set release name
+      run: |
+        $RELEASE = cat $Env:GITHUB_EVENT_PATH | jq --raw-output .release.id
+        echo "releaseID=$RELEASE" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
+        echo "fileName=dap-${{ github.event.release.tag_name }}-win64" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
+
     - name: Install python dependencies
       run: |
         c:\hostedtoolcache\windows\python\3.7.9\x64\python.exe -m pip install --upgrade pip
@@ -20,15 +26,12 @@ jobs:
         pip3 install -r build/requirements.txt
 
     - name: Compile to exe
-      run: pyinstaller --name dap --onefile ./build/main.spec
+      run: |
+        pyinstaller --onefile ./build/main.spec
 
     - name: Release
-      shell: pwsh
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: | 
         $uploadPath = "./dist/dap.exe"
-        $releaseID = cat ${Env:GITHUB_EVENT_PATH} | jq --raw-output .release.id
-        $uri = "https://uploads.github.com/repos/${Env:GITHUB_REPOSITORY}/releases/${releaseID}/assets?name=dap.exe"
-        $headers = @{"Content-Type"="application/x-msdownload"; "Authorization"="token ${Env:GITHUB_TOKEN}"}
+        $uri = "https://uploads.github.com/repos/$Env:GITHUB_REPOSITORY/releases/${{ env.releaseID }}/assets?name=${{ env.fileName }}.exe"
+        $headers = @{"Content-Type"="application/x-msdownload"; "Authorization"="token ${{ secrets.GITHUB_TOKEN }}"}
         Invoke-WebRequest -Uri $uri -Method POST -Header $headers -InFile $uploadPath

@@ -94,6 +94,27 @@ QLabel#label {
 }
 
 QSvgWidget {
-    max-width: 15px;
-    max-height: 15px;
+    background-color: transparent;
+    max-width: 18px;
+    max-height: 18px;
+}
+
+QPushButton#connection_btn {
+    border: solid #282A2F;
+    border-width: 1px;
+    border-radius: 2px;
+    background-color: #36393F;
+    font: 16pt "Roboto";
+    color: #43B581;
+    min-height: 30px;
+    min-width: 30px;
+    max-width: 30px;
+}
+
+QPushButton#connection_btn::hover {
+    background-color: #2A2C30;
+}
+
+QPushButton#connection_btn::pressed {
+    background-color: #26272B;
 }
