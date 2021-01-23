@@ -43,11 +43,8 @@ class Dropdown(QComboBox):
         self.changed.emit(self.deselected, selected)
         self.deselected = selected
 
-    def hide(self, idx):
-        self.view().setRowHidden(idx, True)
-
-    def show(self, idx):
-        self.view().setRowHidden(idx, False)
+    def setRowHidden(self, idx, hidden):
+        self.view().setRowHidden(idx, hidden)
 
 
 class SVGButton(QPushButton):
@@ -368,7 +365,7 @@ class GUI(QMainWindow):
 
         for idx in range(new_connection.servers.count()):
             if idx in self.connected_servers:
-                new_connection.servers.hide(idx)
+                new_connection.servers.setRowHidden(idx, True)
 
         self.layout.removeWidget(self.connection_btn)
         self.layout.addWidget(self.connection_btn, layer, 4)
@@ -376,13 +373,16 @@ class GUI(QMainWindow):
         self.connections.append(new_connection)
 
     def exclude(self, deselected, selected):
+        self.connected_servers.add(selected)
+        
+        if deselected is not None:
+            self.connected_servers.remove(deselected)
+
         for connection in self.connections:
-            connection.servers.hide(selected)
-            self.connected_servers.add(selected)
+            connection.servers.setRowHidden(selected, True)
 
             if deselected is not None:
-                connection.servers.show(deselected)
-                self.connected_servers.remove(deselected)
+                connection.servers.setRowHidden(deselected, False)
 
     async def run_Qt(self, interval=0.01):
         while True:
