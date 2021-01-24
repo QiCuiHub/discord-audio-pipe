@@ -114,17 +114,13 @@ class Connection:
 
         combobox.setMinimumWidth(min_width + 30)
 
-    def disable_ui(self):
-        self.servers.setEnabled(False)
-        self.channels.setEnabled(False)
-        self.mute.setEnabled(False)
-        self.mute.setText("")
+    def setEnabled(self, enabled):
+        self.devices.setEnabled(enabled)
+        self.servers.setEnabled(enabled)
+        self.channels.setEnabled(enabled)
 
-    def enable_ui(self):
-        self.servers.setEnabled(True)
-        self.channels.setEnabled(True)
-        self.mute.setEnabled(True)
-        self.mute.setText("Mute")
+        self.mute.setEnabled(enabled)
+        self.mute.setText("Mute" if enabled else "")
 
     def set_servers(self, guilds):
         for guild in guilds:
@@ -169,7 +165,7 @@ class Connection:
         try:
             selection = self.channels.currentData()
             self.mute.setText("Mute")
-            self.disable_ui()
+            self.setEnabled(False)
 
             if selection is not None:
                 not_connected = (
@@ -199,7 +195,7 @@ class Connection:
             logging.exception("Error on change_channel")
 
         finally:
-            self.enable_ui()
+            self.setEnabled(True)
 
     def toggle_mute(self):
         try:
@@ -323,7 +319,7 @@ class GUI(QMainWindow):
         titlebar = TitleBar(self)
         self.setMenuWidget(titlebar)
         self.setCentralWidget(central)
-        self.disable_ui()
+        self.setEnabled(False)
 
         # load styles
         QFontDatabase.addApplicationFont("./assets/Roboto-Black.ttf")
@@ -347,15 +343,10 @@ class GUI(QMainWindow):
         self.position = None
         event.accept()
 
-    def disable_ui(self):
-        self.connection_btn.setEnabled(False)
+    def setEnabled(self, enabled):
+        self.connection_btn.setEnabled(enabled)
         for connection in self.connections:
-            connection.disable_ui()
-
-    def enable_ui(self):
-        self.connection_btn.setEnabled(True)
-        for connection in self.connections:
-            connection.enable_ui()
+            connection.setEnabled(enabled)
 
     def add_connection(self):
         layer = len(self.connections) + 2
@@ -395,4 +386,4 @@ class GUI(QMainWindow):
         self.info.setText(f"Logged in as: {self.bot.user.name}")
         self.connections[0].set_servers(self.bot.guilds)
         Connection.resize_combobox(self.connections[0].servers)
-        self.enable_ui()
+        self.setEnabled(True)
