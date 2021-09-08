@@ -21,6 +21,11 @@ In some cases PortAudio and xcb libraries may be missing on linux. On Ubuntu the
     $ sudo apt-get install libportaudio2
     $ sudo apt-get install libxcb-xinerama0
 ```
+macOS requires PortAudio and Opus libraries
+```
+    $ brew install portaudio --HEAD
+    $ brew install opus
+```
 
 ## CLI
 Running the `.exe` / `main.pyw` without any arguments will start the graphical interface. Alternatively, discord-audio-pipe can be run from the command line and contains some tools to query system audio devices and accessible channels.
