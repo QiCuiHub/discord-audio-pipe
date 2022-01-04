@@ -10,7 +10,7 @@ You can download the latest release [**here**](https://github.com/QiCuiHub/disco
 - The `.exe` does not require python or dependencies
 
 ## Setting up a Bot account
-1. Follow the steps [**here**](https://discordpy.readthedocs.io/en/latest/discord.html) to setup and invite a discord bot
+1. Follow the steps [**here**](https://docs.pycord.dev/en/master/discord.html) to setup and invite a discord bot
 2. To link the program to your bot, create a file ``token.txt`` in the same directory as the `.exe` / `main.pyw` and save the bot token inside
 
 ## Dependencies
