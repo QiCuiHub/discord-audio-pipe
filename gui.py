@@ -377,7 +377,7 @@ class GUI(QMainWindow):
 
     async def run_Qt(self, interval=0.01):
         while True:
-            QCoreApplication.processEvents(QEventLoop.AllEvents, interval * 1000)
+            QCoreApplication.processEvents(QEventLoop.AllEvents, int(interval * 1000))
             await asyncio.sleep(interval)
 
     async def ready(self):
