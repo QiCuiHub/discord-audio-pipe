@@ -159,7 +159,7 @@ async def main(bot):
 
 # run program
 bot = discord.Client()
-loop = asyncio.get_event_loop()
+loop = asyncio.get_event_loop_policy().get_event_loop()
 
 try:
     loop.run_until_complete(main(bot))
