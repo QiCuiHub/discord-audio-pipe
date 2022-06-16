@@ -158,7 +158,7 @@ async def main(bot):
 
 
 # run program
-bot = discord.Client()
+bot = discord.Client(intents=discord.Intents.default())
 loop = asyncio.get_event_loop_policy().get_event_loop()
 
 try:
