@@ -1,7 +1,6 @@
 # discord-audio-pipe
 [![GitHub Workflow Status](https://github.com/QiCuiHub/discord-audio-pipe/workflows/CI/badge.svg)](https://github.com/QiCuiHub/discord-audio-pipe/actions?query=workflow%3ACI)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/QiCuiHub/discord-audio-pipe)](https://github.com/QiCuiHub/discord-audio-pipe/releases/latest)
-[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/QiCuiHub/discord-audio-pipe.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/QiCuiHub/discord-audio-pipe/context:python)
 
 Simple program to send stereo audio (microphone, stereo mix, virtual audio cable, etc) into a discord bot.
 
