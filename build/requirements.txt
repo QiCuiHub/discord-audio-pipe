@@ -1,3 +1,3 @@
-discord.py[voice]@git+https://github.com/Rapptz/discord.py.git@master
+discord.py[voice]==2.2.2
 PyQt5==5.15.9
 sounddevice==0.4.6
