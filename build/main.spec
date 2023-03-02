@@ -1,23 +1,17 @@
 # -*- mode: python ; coding: utf-8 -*-
-import sys
 
 block_cipher = None
 
 DATAPATH = os.path.abspath(os.path.join(SPECPATH, '..'))
-site_packages = next(p for p in sys.path if 'site-packages' in p)
 
 a = Analysis(
     ['../main.pyw'],
-    pathex=['..'],
+    pathex=[],
     binaries=[],
-    datas=[
-        (os.path.join(DATAPATH, 'assets'), './assets'),
-        (os.path.join(site_packages, 'discord/bin/libopus-0.x64.dll'), './discord/bin/'),
-        (os.path.join(site_packages, 'portaudio.dll'), './'),
-    ],
+    datas=[(os.path.join(DATAPATH, 'assets'), './assets')],
     hiddenimports=['PyQt5', 'discord', 'sounddevice'],
-    hookspath=[],
-    runtime_hooks=[],
+    hookspath=['./build'],
+    runtime_hooks=None,
     excludes=['numpy', 'tkinter', 'tcl'],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
@@ -91,16 +85,6 @@ exe = EXE(
     bootloader_ignore_signals=False,
     strip=False,
     upx=False,
-    upx_exclude=[
-        'ucrtbase.dll',
-        'vcruntime140.dll',
-        'vcruntime140_1.dll',
-        'concrt140.dll',
-        'msvcp140.dll',
-        'msvcp140_1.dll',
-        'msvcp140_2.dll',
-        'qwindows.dll'
-    ],
     runtime_tmpdir=None,
     console=False,
     icon=os.path.join(DATAPATH, 'assets/favicon.ico')
