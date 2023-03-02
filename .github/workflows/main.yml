@@ -2,7 +2,7 @@ name: CI
 
 on:
   release:
-    types: [prereleased, published]
+    types: [prereleased]
 
 jobs:
   build:
@@ -13,6 +13,11 @@ jobs:
       with:
         fetch-depth: 1
 
+    - uses: actions/setup-python@v3
+      with:
+        python-version: '3.10'
+        architecture: 'x64'
+
     - name: Set release name
       run: |
         $RELEASE = cat $Env:GITHUB_EVENT_PATH | jq --raw-output .release.id
@@ -21,13 +26,13 @@ jobs:
 
     - name: Install python dependencies
       run: |
-        c:\hostedtoolcache\windows\python\3.7.9\x64\python.exe -m pip install --upgrade pip
-        pip3 install pyinstaller
-        pip3 install -r build/requirements.txt
+        python -m pip install --upgrade pip
+        pip install pyinstaller==5.1
+        pip install -r build/requirements.txt
 
     - name: Compile to exe
       run: |
-        pyinstaller --onefile ./build/main.spec
+        pyinstaller ./build/main.spec
 
     - name: Release
       run: | 
