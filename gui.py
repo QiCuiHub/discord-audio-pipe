@@ -136,7 +136,7 @@ class Connection:
                 self.stream.change_device(selection)
 
                 if self.voice.is_connected():
-                    self.voice.play(discord.PCMAudio(self.stream))
+                    self.voice.play(self.stream)
 
             else:
                 self.stream.change_device(selection)
@@ -185,7 +185,7 @@ class Connection:
                 )
 
                 if not_playing:
-                    self.voice.play(discord.PCMAudio(self.stream))
+                    self.voice.play(self.stream)
 
             else:
                 if self.voice is not None:

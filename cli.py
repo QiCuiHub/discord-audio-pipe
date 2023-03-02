@@ -1,6 +1,5 @@
 import sys
 import sound
-import discord
 import logging
 
 
@@ -15,7 +14,7 @@ async def connect(bot, device_id, channel_id):
         stream.change_device(device_id)
 
         voice = await channel.connect()
-        voice.play(discord.PCMAudio(stream))
+        voice.play(stream)
 
         print(f"Playing audio in {channel.name}")
 

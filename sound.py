@@ -1,3 +1,4 @@
+import discord
 import sounddevice as sd
 from pprint import pformat
 
@@ -8,14 +9,19 @@ sd.default.latency = "low"
 sd.default.samplerate = 48000
 
 
-class PCMStream:
+class PCMStream(discord.AudioSource):
     def __init__(self):
+        discord.AudioSource.__init__(self)
         self.stream = None
 
-    def read(self, num_bytes):
-        # frame is 4 bytes
-        frames = int(num_bytes / 4)
-        data = self.stream.read(frames)[0]
+        # Discord reads 20 ms worth of audio at a time (20 ms * 50 == 1000 ms == 1 sec)
+        self.frames = int(sd.default.samplerate / 50)
+
+    def read(self):
+        if self.stream is None:
+            return
+
+        data = self.stream.read(self.frames)[0]
 
         # convert to pcm format
         return bytes(data)
