@@ -191,6 +191,9 @@ class Connection:
                 if self.voice is not None:
                     await self.voice.disconnect()
 
+        except asyncio.TimeoutError:
+            logging.exception("Timed out connecting to channel. The bot may not have permissions to join the channel due to custom roles.")
+
         except Exception:
             logging.exception("Error on change_channel")
 
