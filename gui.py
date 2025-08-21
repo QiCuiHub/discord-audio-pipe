@@ -153,7 +153,7 @@ class Connection:
             self.channels.addItem("None", None)
 
             for channel in selection.channels:
-                if isinstance(channel, discord.VoiceChannel):
+                if isinstance(channel, discord.VoiceChannel) or isinstance(channel, discord.StageChannel):
                     self.channels.addItem(channel.name, channel)
 
             Connection.resize_combobox(self.channels)
